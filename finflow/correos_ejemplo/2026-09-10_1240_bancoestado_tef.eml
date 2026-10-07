@@ -1,0 +1,29 @@
+From: BancoEstado <notificaciones@correo.bancoestado.cl>
+To: Valentina Rojas Soto <valentina.rojas@example.com>
+Subject: Comprobante de Transferencia Electronica de Fondos (TEF)
+Date: Thu, 10 Sep 2026 12:40:14 -0300
+X-FinFlow-Ejemplo: Correo de ejemplo con datos ficticios
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body style=3D"font-family:Arial,sans-serif">
+<p>Estimado(a) VALENTINA ROJAS SOTO</p>
+<p>Acabas de realizar una Transferencia Electronica de Fondos desde tu cuenta=
+ BancoEstado.</p>
+<div style=3D"background:#ffb600;padding:12px;font-size:18px"><b>Monto transf=
+erido: $20.020</b></div>
+<h3>Desde</h3>
+<table cellpadding=3D"4"><tr><td>Producto</td><td>:</td><td>CuentaRUT</td></t=
+r><tr><td>N=C2=B0 de cuenta</td><td>:</td><td>11111111</td></tr><tr><td>N=C2=
+=B0 de TEF</td><td>:</td><td>4810030300</td></tr><tr><td>Fecha y Hora de TEF<=
+/td><td>:</td><td>10/09/2026 12:40:14</td></tr></table>
+<h3>Hacia</h3>
+<table cellpadding=3D"4"><tr><td>Nombre</td><td>:</td><td>Javiera Mu=C3=B1oz =
+P=C3=A9rez</td></tr><tr><td>RUT</td><td>:</td><td>12.345.678-5</td></tr><tr><=
+td>Banco</td><td>:</td><td>Scotiabank</td></tr><tr><td>N=C2=B0 de cuenta</td>=
+<td>:</td><td>972345678</td></tr><tr><td>Producto</td><td>:</td><td>Cuenta Co=
+rriente</td></tr><tr><td>E-mail</td><td>:</td><td>javiera.munoz@example.com</=
+td></tr></table>
+<p>Este es un correo autom=C3=A1tico, por favor no lo respondas.</p>
+</body></html>

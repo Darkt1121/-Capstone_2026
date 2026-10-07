@@ -1,6 +1,9 @@
 # Variables de entorno con claves y contraseñas
 .env
 
+# Correos bancarios reales (nunca se suben; al repo van solo copias con datos ficticios)
+correos_reales/
+
 # Entorno virtual de Python
 venv/
 .venv/

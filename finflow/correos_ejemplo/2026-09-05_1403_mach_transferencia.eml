@@ -1,0 +1,21 @@
+From: MACH <notificaciones@somosmach.com>
+To: Valentina Rojas Soto <valentina.rojas@example.com>
+Subject: Realizaste una transferencia
+Date: Sat, 05 Sep 2026 14:03:14 -0400
+X-FinFlow-Ejemplo: Correo de ejemplo con datos ficticios
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body style=3D"font-family:Arial,sans-serif">
+<h2>Realizaste una transferencia</h2>
+<p>Acabas de hacer una transferencia desde tu cuenta principal MACHBANK.</p>
+<h3>Detalle</h3>
+<table cellpadding=3D"4"><tr><td>Fecha</td><td>05/09/2026 - 14:03:14</td></tr=
+><tr><td>Nombre destinatario</td><td>Camila Fuentes D=C3=ADaz</td></tr><tr><t=
+d>RUT</td><td>18.234.567-9</td></tr><tr><td>Banco destino</td><td>Banco Santa=
+nder</td></tr><tr><td>Cuenta destino</td><td>0071234567</td></tr><tr><td>Mont=
+o</td><td>$15.000</td></tr><tr><td>Mensaje</td><td>once</td></tr><tr><td>C=C3=
+=B3digo de confirmaci=C3=B3n</td><td>EBZ5DWQR</td></tr></table>
+<p>Equipo MACH</p>
+</body></html>
