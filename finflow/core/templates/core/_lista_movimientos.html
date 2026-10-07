@@ -1,0 +1,24 @@
+{% load formato %}
+{% for titulo, lista in dias_con_movimientos %}
+  <h2 class="h6 text-body-secondary mt-3 mb-2">{{ titulo }}</h2>
+  <div class="list-group">
+    {% for movimiento in lista %}
+      <a href="{% url 'dia' movimiento.fecha|date:'Y-m-d' %}"
+         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3 py-2{% if movimiento.es_propia %} text-body-secondary{% endif %}">
+        <div class="overflow-hidden">
+          <div class="fw-semibold text-truncate">{{ movimiento.nombre }}</div>
+          <small class="text-body-secondary">
+            <span class="badge text-bg-{{ movimiento.banco|slugify }}">{{ movimiento.banco }}</span>
+            {{ movimiento.fecha|time:"H:i" }}
+            {% if movimiento.es_propia %}· Entre tus cuentas{% endif %}
+          </small>
+        </div>
+        <span class="fw-semibold text-nowrap{% if movimiento.tipo == 'ingreso' %} text-success{% endif %}">
+          {% if movimiento.tipo == 'ingreso' %}+{% else %}-{% endif %}{{ movimiento.monto|pesos }}
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+{% empty %}
+  <p class="text-body-secondary">{{ sin_movimientos }}</p>
+{% endfor %}

@@ -1,0 +1,44 @@
+/* CSS propio mínimo. El resto es Bootstrap 5.3 tal cual. */
+
+/* ---------- Del ejemplo oficial "Dashboard" de Bootstrap ---------- */
+.navbar-brand {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  background-color: rgba(0, 0, 0, .25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+
+.navbar .form-control { padding: .75rem 1rem; }
+
+.sidebar .nav-link { font-size: .875rem; font-weight: 500; }
+
+@media (min-width: 768px) {
+  .sidebar .offcanvas-md { position: sticky; top: 48px; }
+}
+
+/* ---------- Selector de modo de color (de la documentación de Bootstrap) ---------- */
+.bd-mode-toggle { z-index: 1500; }
+.bd-mode-toggle .dropdown-menu .active .bi { display: block !important; }
+
+/* ---------- Calendario (del ejemplo de Bootstrap) ---------- */
+.cal-month, .cal-weekdays, .cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: center;
+}
+
+.cal-month-name { grid-column: 2 / 7; text-align: center; }
+
+.cal-weekday, .cal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0;
+}
+
+.cal-btn[disabled] { border: 0; opacity: .5; }
+
+/* ---------- Color de cada banco (usa los colores que ya trae Bootstrap) ---------- */
+.text-bg-bancoestado { color: #000 !important; background-color: var(--bs-orange) !important; }
+.text-bg-mach { color: #fff !important; background-color: var(--bs-purple) !important; }

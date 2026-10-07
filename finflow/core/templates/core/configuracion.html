@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+
+{% block titulo %}{% if primera_vez %}Configura tu cuenta{% else %}Configuración{% endif %}{% endblock %}
+
+{% block contenido %}
+<div class="row">
+  <div class="col-lg-6">
+    {% if primera_vez %}
+      <p class="text-body-secondary">Lo ingresas una sola vez. Con esto FinFlow calcula cuánto puedes gastar.</p>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {% for campo in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+          {% if campo.help_text %}<div class="form-text">{{ campo.help_text }}</div>{% endif %}
+          {% for error in campo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

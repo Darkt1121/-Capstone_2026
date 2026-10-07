@@ -1,0 +1,11 @@
+{% extends "core/base.html" %}
+
+{% block titulo %}{% if busqueda %}Resultados para "{{ busqueda }}"{% else %}Movimientos{% endif %}{% endblock %}
+{% block acciones %}
+  <span class="text-body-secondary me-3">{{ cantidad }} movimiento{{ cantidad|pluralize }}</span>
+  {% if busqueda %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'movimientos' %}">Ver todos</a>{% endif %}
+{% endblock %}
+
+{% block contenido %}
+{% include "core/_lista_movimientos.html" with sin_movimientos="No encontramos movimientos con esa búsqueda." %}
+{% endblock %}
