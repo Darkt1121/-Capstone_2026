@@ -2,7 +2,7 @@ import re
 
 from django import forms
 
-from lectores.utiles import rut as normalizar_rut
+from lectores.utiles import normalizar_rut
 
 from .models import Perfil
 
@@ -14,7 +14,6 @@ class PerfilForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Clases de Bootstrap para que los campos se vean bien
         for campo in self.fields.values():
             campo.widget.attrs['class'] = 'form-select' if isinstance(campo.widget, forms.Select) else 'form-control'
 

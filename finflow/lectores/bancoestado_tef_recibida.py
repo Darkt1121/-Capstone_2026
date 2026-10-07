@@ -2,7 +2,7 @@
 
 Formato inventado (no teníamos un correo real de este tipo). Ajustar en el S2.
 """
-from .utiles import buscar, fecha, monto, remitente, rut, separar_desde_hacia, texto
+from .utiles import buscar, leer_fecha, leer_monto, normalizar_rut, remitente, separar_desde_hacia, texto
 
 # TODO: confirmar con correo real
 REMITENTES = ['notificaciones@correo.bancoestado.cl']
@@ -18,11 +18,11 @@ def leer(correo):
     return {
         'banco': 'BancoEstado',
         'direccion': 'entra',
-        'monto': monto(buscar('Monto recibido', contenido)),
-        'fecha': fecha(buscar('Fecha y Hora de TEF', hacia), '%d/%m/%Y %H:%M:%S'),
+        'monto': leer_monto(buscar('Monto recibido', contenido)),
+        'fecha': leer_fecha(buscar('Fecha y Hora de TEF', hacia), '%d/%m/%Y %H:%M:%S'),
         'codigo': buscar('N° de TEF', hacia),
         'nombre': buscar('Nombre', desde),
-        'rut': rut(buscar('RUT', desde)),
+        'rut': normalizar_rut(buscar('RUT', desde)),
         'banco_contraparte': buscar('Banco', desde),
         'mensaje': None,
     }

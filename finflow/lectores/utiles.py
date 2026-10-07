@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 ZONA_CHILE = ZoneInfo('America/Santiago')
 
-# Etiquetas HTML que empiezan una línea nueva (párrafos, títulos y filas de tabla)
+# Así cada fila de tabla queda en su propia línea y se puede buscar "Etiqueta : valor"
 ETIQUETAS_DE_LINEA = {'p', 'div', 'br', 'tr', 'h1', 'h2', 'h3', 'h4', 'li'}
 
 
@@ -43,28 +43,28 @@ def texto(correo):
     return '\n'.join(linea for linea in lineas if linea)
 
 
-def buscar(etiqueta, texto):
+def buscar(etiqueta, contenido):
     """Busca la línea 'Etiqueta : valor' (o 'Etiqueta valor') y devuelve el valor, o None."""
-    encontrado = re.search(rf'^{re.escape(etiqueta)}(?: ?:)? (.+)$', texto, re.MULTILINE)
+    encontrado = re.search(rf'^{re.escape(etiqueta)}(?: ?:)? (.+)$', contenido, re.MULTILINE)
     return encontrado.group(1) if encontrado else None
 
 
-def separar_desde_hacia(texto):
+def separar_desde_hacia(contenido):
     """Divide el texto en la parte 'Desde' y la parte 'Hacia'."""
-    desde, hacia = texto.split('\nHacia\n', 1)
+    desde, hacia = contenido.split('\nHacia\n', 1)
     return desde, hacia
 
 
-def monto(valor):
+def leer_monto(valor):
     """'$20.020' -> 20020"""
     return int(re.sub(r'\D', '', valor))
 
 
-def fecha(valor, formato):
-    """Convierte el texto de la fecha a datetime con la hora de Chile."""
+def leer_fecha(valor, formato):
+    """Texto de la fecha -> datetime con la hora de Chile."""
     return datetime.strptime(valor, formato).replace(tzinfo=ZONA_CHILE)
 
 
-def rut(valor):
+def normalizar_rut(valor):
     """'12.345.678-5' -> '12345678-5' (sin puntos y con K mayúscula)."""
     return valor.replace('.', '').replace(' ', '').upper()

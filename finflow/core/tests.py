@@ -7,11 +7,18 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
+from .categorias import categoria
 from .forms import PerfilForm
 from .importar import importar_correos
 from .models import Movimiento, Perfil
-from .categorias import categoria
-from .plan import calcular_resumen, calendario_del_mes, comparar_con_mes_anterior, movido_entre_cuentas, reparto_del_gasto, top_personas
+from .plan import (
+    calcular_resumen,
+    calendario_del_mes,
+    comparar_con_mes_anterior,
+    movido_entre_cuentas,
+    reparto_del_gasto,
+    transferencias_por_persona,
+)
 from .views import agrupar_por_dia
 
 CARPETA_EJEMPLOS = settings.BASE_DIR / 'correos_ejemplo'
@@ -63,7 +70,7 @@ class FinFlowTest(TestCase):
         reparto = {parte['clave']: parte['monto'] for parte in reparto_del_gasto(self.usuario, inicio, fin, 850000)}
         self.assertEqual(reparto, {'personas': 300500, 'comisiones': 0, 'otros': 0, 'sin-gastar': 549500})
 
-        personas = [(p['nombre'], p['transferencias'], p['total']) for p in top_personas(self.usuario, hoy)]
+        personas = [(p['nombre'], p['transferencias'], p['total']) for p in transferencias_por_persona(self.usuario, hoy)]
         self.assertEqual(personas, [
             ('Diego Soto Vergara', 3, 750000),
             ('Javiera Muñoz Pérez', 3, 95020),

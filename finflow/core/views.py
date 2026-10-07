@@ -17,8 +17,8 @@ from .plan import (
     comparar_con_mes_anterior,
     movido_entre_cuentas,
     reparto_del_gasto,
-    top_personas,
     total,
+    transferencias_por_persona,
 )
 
 DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -31,7 +31,7 @@ def datos_del_mes(usuario, primer_dia, hoy):
     """Calendario y gráfico de gasto diario de un mes (se usan en el dashboard y en la página Calendario)."""
     semanas, por_dia = calendario_del_mes(usuario, primer_dia)
     ultimo = calendar.monthrange(primer_dia.year, primer_dia.month)[1]
-    # En el mes actual el gráfico llega hasta hoy; en otros meses, hasta fin de mes
+    # En el mes actual el gráfico llega hasta hoy, para no dibujar días futuros en $0
     hasta = hoy.day if (primer_dia.year, primer_dia.month) == (hoy.year, hoy.month) else ultimo
     return {
         'mes_nombre': capfirst(date_format(primer_dia, 'F Y')),
@@ -73,13 +73,13 @@ def inicio(request):
         return redirect('configuracion')
     hoy = timezone.localdate()
     contexto = calcular_resumen(perfil, hoy)
-    inicio, fin = contexto['inicio'], contexto['fin']
+    inicio_periodo, fin_periodo = contexto['inicio'], contexto['fin']
     contexto.update({
         'perfil': perfil,
         'periodo': 'esta quincena' if perfil.frecuencia_pago == 'quincena' else 'este mes',
-        'reparto': reparto_del_gasto(request.user, inicio, fin, contexto['ingreso']),
-        'personas': top_personas(request.user, hoy),
-        'movido': movido_entre_cuentas(request.user, inicio, fin),
+        'reparto': reparto_del_gasto(request.user, inicio_periodo, fin_periodo, contexto['ingreso']),
+        'personas': transferencias_por_persona(request.user, hoy),
+        'movido': movido_entre_cuentas(request.user, inicio_periodo, fin_periodo),
         'comparacion': comparar_con_mes_anterior(request.user, hoy),
         'dias_con_movimientos': agrupar_por_dia(Movimiento.objects.filter(usuario=request.user)[:8], hoy),
     })
@@ -90,7 +90,7 @@ def inicio(request):
 
 
 @login_required
-def calendario_view(request):
+def calendario(request):
     """Calendario de un mes (?mes=AAAA-MM) con el gasto diario. Sin parámetro, el mes actual."""
     hoy = timezone.localdate()
     try:

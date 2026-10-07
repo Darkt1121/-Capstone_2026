@@ -73,7 +73,7 @@ def reparto_del_gasto(usuario, inicio, fin, ingreso):
     return reparto
 
 
-def top_personas(usuario, hoy, cantidad=5):
+def transferencias_por_persona(usuario, hoy, cantidad=5):
     """Personas (agrupadas por RUT) a las que más les has transferido en los últimos 6 meses."""
     filas = (
         Movimiento.objects.filter(usuario=usuario, tipo='gasto', es_propia=False, fecha__date__gte=hoy - timedelta(days=182))

@@ -136,9 +136,6 @@
             <h1 class="h2 mb-0">{% block titulo %}{% endblock %}</h1>
             <div class="btn-toolbar">{% block acciones %}{% endblock %}</div>
           </div>
-          {% for mensaje in messages %}
-            <div class="alert alert-{{ mensaje.tags }}">{{ mensaje }}</div>
-          {% endfor %}
           {% block contenido %}{% endblock %}
         </main>
       </div>

@@ -1,5 +1,5 @@
 """Lector del comprobante de transferencia enviada (TEF) de BancoEstado."""
-from .utiles import buscar, fecha, monto, remitente, rut, separar_desde_hacia, texto
+from .utiles import buscar, leer_fecha, leer_monto, normalizar_rut, remitente, separar_desde_hacia, texto
 
 # TODO: confirmar con correo real
 REMITENTES = ['notificaciones@correo.bancoestado.cl']
@@ -15,11 +15,11 @@ def leer(correo):
     return {
         'banco': 'BancoEstado',
         'direccion': 'sale',
-        'monto': monto(buscar('Monto transferido', contenido)),
-        'fecha': fecha(buscar('Fecha y Hora de TEF', desde), '%d/%m/%Y %H:%M:%S'),
+        'monto': leer_monto(buscar('Monto transferido', contenido)),
+        'fecha': leer_fecha(buscar('Fecha y Hora de TEF', desde), '%d/%m/%Y %H:%M:%S'),
         'codigo': buscar('N° de TEF', desde),
         'nombre': buscar('Nombre', hacia),
-        'rut': rut(buscar('RUT', hacia)),
+        'rut': normalizar_rut(buscar('RUT', hacia)),
         'banco_contraparte': buscar('Banco', hacia),
         'mensaje': None,
     }
