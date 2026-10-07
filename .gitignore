@@ -1,0 +1,13 @@
+# Variables de entorno con claves y contraseñas
+.env
+
+# Entorno virtual de Python
+venv/
+.venv/
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+
+# Archivos estáticos recolectados por Django
+staticfiles/
