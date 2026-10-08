@@ -21,7 +21,6 @@
     <symbol id="icono-calendario" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M2 6.5h12M5 1.5v3M11 1.5v3"/></symbol>
     <symbol id="icono-ajustes" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h7M12 4h2M2 12h2M7 12h7"/><circle cx="10.5" cy="4" r="1.5"/><circle cx="5.5" cy="12" r="1.5"/></symbol>
     <symbol id="icono-salir" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2H3v12h6.5M6.5 8H15M12 5l3 3-3 3"/></symbol>
-    <symbol id="icono-buscar" viewBox="0 0 16 16" fill="currentColor"><path d="M11.7 10.3a6.5 6.5 0 1 0-1.4 1.4l3.9 3.9 1.4-1.4-3.9-3.9zM6.5 11a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></symbol>
     <symbol id="icono-menu" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"/></symbol>
   </svg>
 
@@ -62,22 +61,12 @@
     {% if user.is_authenticated %}
       <ul class="navbar-nav flex-row d-md-none">
         <li class="nav-item text-nowrap">
-          <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#busqueda"
-                  aria-controls="busqueda" aria-expanded="false" aria-label="Buscar">
-            <svg class="bi" width="1.1em" height="1.1em"><use href="#icono-buscar"></use></svg>
-          </button>
-        </li>
-        <li class="nav-item text-nowrap">
           <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral"
                   aria-controls="menuLateral" aria-expanded="false" aria-label="Abrir menú">
             <svg class="bi" width="1.3em" height="1.3em"><use href="#icono-menu"></use></svg>
           </button>
         </li>
       </ul>
-      <form id="busqueda" class="w-100 collapse d-md-block" action="{% url 'movimientos' %}" method="get" role="search">
-        <input class="form-control w-100 rounded-0 border-0" type="search" name="q" value="{{ busqueda|default:'' }}"
-               placeholder="Buscar movimientos por nombre o monto" aria-label="Buscar movimientos">
-      </form>
     {% endif %}
   </header>
 

@@ -130,4 +130,5 @@ def comparar_con_mes_anterior(usuario, hoy):
     mes_pasado = total(gastos(usuario, fin_mes_pasado.replace(day=1), mismo_dia_mes_pasado))
     if mes_pasado == 0:
         return None
-    return {'porcentaje': round((este_mes - mes_pasado) * 100 / mes_pasado), 'este_mes': este_mes, 'mes_pasado': mes_pasado}
+    diferencia = este_mes - mes_pasado
+    return {'diferencia': diferencia, 'porcentaje': round(diferencia * 100 / mes_pasado), 'este_mes': este_mes, 'mes_pasado': mes_pasado}

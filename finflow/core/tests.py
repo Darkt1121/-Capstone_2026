@@ -82,7 +82,10 @@ class FinFlowTest(TestCase):
         self.assertEqual((movido['total'], movido['cantidad'], movido['bancos']), (200000, 1, ['BancoEstado', 'MACH']))
 
         # 1 al 7 oct: $300.500 · 1 al 7 sep: $265.000 (arriendo + Camila) -> 13% más
-        self.assertEqual(comparar_con_mes_anterior(self.usuario, hoy)['porcentaje'], 13)
+        comparacion = comparar_con_mes_anterior(self.usuario, hoy)
+        self.assertEqual((comparacion['diferencia'], comparacion['porcentaje']), (35500, 13))
+        # Sin gastos el mes anterior (julio) no hay con qué comparar
+        self.assertIsNone(comparar_con_mes_anterior(self.usuario, date(2026, 8, 7)))
 
     def test_calendario_de_octubre(self):
         importar_correos(self.perfil, CARPETA_EJEMPLOS)

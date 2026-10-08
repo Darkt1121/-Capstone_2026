@@ -16,13 +16,6 @@
   {% endif %}
 </div>
 
-{% if comparacion and comparacion.porcentaje > 0 %}
-  <div class="alert alert-warning" role="alert">
-    Llevas un <strong>{{ comparacion.porcentaje }}% más</strong> gastado que el mes pasado a esta fecha
-    ({{ comparacion.este_mes|pesos }} vs {{ comparacion.mes_pasado|pesos }}).
-  </div>
-{% endif %}
-
 <div class="row g-3 mb-3">
   <div class="col-lg-7">
     <div class="card h-100">
@@ -82,7 +75,7 @@
 </div>
 
 <div class="row g-3 mb-3">
-  <div class="col-6 col-md-4">
+  <div class="col-6 col-lg-3">
     <div class="card h-100">
       <div class="card-body">
         <div class="small text-body-secondary">Ingreso {{ periodo }}</div>
@@ -91,16 +84,35 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-4">
+  <div class="col-6 col-lg-3">
     <div class="card h-100">
       <div class="card-body">
         <div class="small text-body-secondary">Gastado {{ periodo }}</div>
         <div class="fs-5 fw-semibold">{{ gastado|pesos }}</div>
-        <div class="small text-body-secondary">Sin contar lo movido entre tus cuentas</div>
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-4">
+  <div class="col-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="small text-body-secondary">vs mes pasado</div>
+        {% if comparacion %}
+          {# Compara con el mes pasado hasta el mismo día #}
+          <div>
+            <div class="fs-5 fw-semibold">{% if comparacion.diferencia > 0 %}+{{ comparacion.diferencia|pesos }}{% elif comparacion.diferencia < 0 %}−{{ comparacion.diferencia|pesos|cut:"-" }}{% else %}$0{% endif %}</div>
+            <div class="small text-body-secondary">
+              {% if comparacion.diferencia > 0 %}{{ comparacion.porcentaje }}% más que a esta fecha
+              {% elif comparacion.diferencia < 0 %}{{ comparacion.porcentaje|cut:"-" }}% menos que a esta fecha
+              {% else %}Igual que a esta fecha{% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="small text-body-secondary mt-1">Sin datos del mes pasado</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
     <div class="card h-100">
       <div class="card-body">
         <div class="small text-body-secondary">Movido entre tus cuentas</div>
