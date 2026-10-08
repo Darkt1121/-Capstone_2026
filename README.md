@@ -7,7 +7,7 @@ Plataforma web tipo dashboard que centraliza los datos financieros del usuario y
 Trabajadores independientes y pequenas empresas categorizan manualmente sus movimientos bancarios, lo que genera error humano y perdida de tiempo en la gestion financiera.
 
 ## Solucion
-- Conexion a la API sandbox de Banco de Chile para extraer cartolas en tiempo real
+- Conexion a la API sandbox de Fintoc para extraer datos bancarios en tiempo real
 - Clasificacion automatica de transacciones mediante NLP en 4 categorias
 - Modelo predictivo de series temporales para proyectar flujo de caja
 
