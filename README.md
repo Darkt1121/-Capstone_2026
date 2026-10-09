@@ -25,3 +25,6 @@ Trabajo bajo metodologia agil, dada la dependencia de integraciones con APIs ext
 - Fase 1 – Definicion del Proyecto 
 - Fase 2 – Desarrollo del Proyecto 
 - Fase 3 – Exposicion ante Comision 
+
+cd finflow.fintoc/public
+python3 -m http.server 8000
