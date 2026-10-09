@@ -26,6 +26,9 @@ Trabajo bajo metodologia agil, dada la dependencia de integraciones con APIs ext
 - Fase 2 – Desarrollo del Proyecto 
 - Fase 3 – Exposicion ante Comision 
 
+## Cómo ejecutar 
+```bash
 cd finflow.fintoc/public
-
 python3 -m http.server 8000
+```
+Luego abrir http://localhost:8000 
