@@ -1,33 +1,65 @@
-# FinFlow + Fintoc
+# FinFlow
 
-Conecta el banco del usuario (modo prueba, solo lectura) y carga sus movimientos en FinFlow.
-Las cartolas (CSV/Excel) siguen funcionando igual como alternativa.
+Página para trabajadores independientes: junta los movimientos de tus cuentas, separa lo del
+negocio de lo personal y proyecta tu saldo a 4 semanas para avisarte antes de quedar corto.
 
-## Puesta en marcha
-1. Instala Node 20.6 o superior (`node -v`).
-2. Crea una cuenta en https://app.fintoc.com y, en **modo prueba**, copia tus llaves
-   (Para desarrolladores > API Keys): `sk_test_...` y `pk_test_...`.
-3. Copia `.env.example` a `.env` y pega las llaves.
-4. `npm start` y abre http://localhost:3000
-5. En el paso "Sube tu cartola" aparece **Conectar mi banco**. En modo prueba Fintoc
-   ofrece un banco de prueba con datos falsos (ver su guía "test your integration").
+Los movimientos entran de dos formas:
+- subiendo la cartola del banco (Excel o CSV), o
+- conectando el banco con Fintoc en modo solo lectura (nunca se pide la clave del banco).
 
-## Cómo funciona
+## Cómo correrlo
+1. Instala Node 20.6 o superior (`node -v`) y Docker Desktop.
+2. Copia `.env.example` como `.env` e inventa una contraseña para la base de datos
+   (`POSTGRES_PASSWORD`, y la misma dentro de `DATABASE_URL`).
+3. `docker compose up -d db` enciende PostgreSQL (puerto 5433).
+4. `npm install` instala `pg`, el conector de PostgreSQL. Es la única librería.
+5. `npm start` y abre http://localhost:3000. Las tablas se crean solas la primera vez.
+
+Opcional, en el `.env`:
+- **Conectar un banco**: llaves de **modo prueba** de https://app.fintoc.com (`sk_test_...` y
+  `pk_test_...`). Sin llaves la página funciona igual, solo con cartolas.
+- **Entrar con Google**: `GOOGLE_CLIENT_ID` de https://console.cloud.google.com (cliente OAuth
+  de tipo "Aplicación web", con origen autorizado `http://localhost:3000`).
+- **Asistente**: `GROQ_API_KEY` de https://console.groq.com.
+
+Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
+
+## Qué tiene
+- **Inicio**: saldo total, cuánto puedes gastar por día, alerta si vas a bajar de tu mínimo,
+  resumen del mes, negocio vs. personal y gastos por categoría.
+- **Movimientos**: lista con buscador y filtros. Cada movimiento dice por qué se clasificó así
+  y se puede corregir; la corrección se aplica a los demás movimientos del mismo comercio.
+- **Proyección**: saldo probable de las próximas 4 semanas, pagos fijos que vienen y tu mínimo.
+- **Calendario**: cuánto gastaste cada día del mes.
+- **Perfil**: cuentas conectadas, exportar los datos en CSV y borrar todo.
+- **Asistente** (opcional): preguntas en español sobre tus números. Usa la API gratuita de Groq y
+  solo recibe un resumen ya calculado, sin nombres de personas ni RUT. Se activa con `GROQ_API_KEY`.
+- Modo claro y oscuro.
+
+## Cómo está hecho
+- `server.js`: servidor de Node. Entrega la página, maneja las cuentas y habla con la API de
+  Fintoc. La llave secreta y el `link_token` se quedan en el servidor; al navegador solo llegan
+  los movimientos ya convertidos.
+- **Cuentas**: con correo y contraseña (se guarda solo el hash, hecho con `scrypt`) o con Google
+  (el servidor comprueba con Google el token antes de aceptar). La sesión es una cookie
+  `HttpOnly` y se guarda en la base de datos.
+- `db/schema.sql`: las tablas de PostgreSQL (`usuarios` y `sesiones`).
+- `public/index.html`: toda la página. Diseño con Bootstrap 5.3. La lógica (leer cartolas,
+  clasificar, detectar traspasos entre cuentas propias y proyectar) corre en el navegador y los
+  datos se guardan en el `localStorage`.
+
 ```
-Navegador --(widget Fintoc)--> Fintoc
+Navegador --(widget de Fintoc)--> Fintoc
    | exchange_token
    v
-server.js --(sk_test_ + link_token; nunca salen del servidor)--> api.fintoc.com
-   | filas ya convertidas {date, description, amount, balance}
+server.js --(llave secreta + link_token)--> api.fintoc.com
+   | movimientos {fecha, descripción, monto}
    v
-index.html -> FF.mergeRows() -> clasificación / proyección existentes
+index.html -> clasificación -> resumen, proyección y calendario
 ```
-- `server.js`: crea el Link Intent, cambia el exchange_token por link_token, trae cuentas y movimientos (de a 300 por página).
-- `public/index.html`: botón "Conectar mi banco", botón "Actualizar desde el banco" en Perfil y consentimiento actualizado.
-- Si abres `index.html` sin el servidor, el botón no aparece y todo sigue funcionando con cartolas.
 
-## Pendientes antes de producción
-- Llaves `live` (requiere aprobación de Fintoc) y HTTPS.
-- Guardar `link_token` cifrado y asociado a usuarios reales (hoy: `data/links.json` por sesión de navegador).
-- Si el widget se abre dos veces, borra la línea `widget.open()` en `runFintoc` (depende de la versión de fintoc.js).
-- Política de privacidad y retención de datos personales.
+## Pendiente
+- Llaves `live` de Fintoc (requiere aprobación) y HTTPS.
+- Guardar los movimientos en la base de datos: hoy siguen en el `localStorage` del navegador,
+  y el `link_token` en `data/links.json`.
+- Pruebas automáticas y el Dockerfile de la página.

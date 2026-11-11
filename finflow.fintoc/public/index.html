@@ -3,274 +3,116 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0c1214">
+<meta name="theme-color" content="#212529">
 <title>FinFlow</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <style>
-/* Layout: landing de una columna centrada; app con barra lateral en escritorio y barra inferior en celular. Diseño oscuro único (decisión del proyecto). */
+/* Diseño: Bootstrap 5.3 tal cual. Aquí va solo lo que Bootstrap no trae. */
 :root {
-  --bg: #0c1214;
-  --surface: #131b1e;
-  --surface-2: #1a2427;
-  --line: #24323a;
-  --fg: #eaf1f0;
-  --muted: #9aabaa;
-  --faint: #6d807f;
-  --accent: #5fd4c4;
-  --accent-ink: #062320;
-  --warn: #f2b45a;
-  --warn-bg: #2a2113;
-  --warn-line: #5b4316;
-  --danger: #ff8b7b;
-  --negocio: #5fd4c4;
-  --negocio-bg: #123331;
-  --personal: #b4a8ff;
-  --personal-bg: #241f43;
-  --internal: #b8c4c8;
-  --internal-bg: #222c30;
-  --pos: #6fe0a6;
-  --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
-  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --radius: 16px;
-  color-scheme: dark;
+  /* Colores que usa el gráfico (SVG), tomados de Bootstrap. */
+  --bg: var(--bs-body-bg);
+  --line: var(--bs-border-color);
+  --muted: var(--bs-secondary-color);
+  --faint: var(--bs-secondary-color);
+  --accent: var(--bs-primary);
+  --warn: var(--bs-warning);
+  --danger: var(--bs-danger);
 }
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
-p { margin: 0; }
-a { color: var(--accent); }
-button, input, select { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 .num { font-variant-numeric: tabular-nums; }
-.muted { color: var(--muted); }
-.faint { color: var(--faint); }
-.small { font-size: 13px; }
-.xs { font-size: 12px; }
-.row { display: flex; gap: 12px; align-items: center; }
-.between { justify-content: space-between; }
-.stack { display: flex; flex-direction: column; gap: 12px; }
-.wrap { flex-wrap: wrap; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.faint { color: var(--bs-secondary-color); }
+section[id] { scroll-margin-top: 70px; }
 
-/* Botones */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 600; text-decoration: none; color: var(--fg); }
-.btn:hover { border-color: #37505a; }
-.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.btn-primary:hover { background: #7ae0d2; border-color: #7ae0d2; }
-.btn-ghost { background: transparent; }
-.btn-block { width: 100%; }
-.btn:disabled { opacity: .5; cursor: default; }
-.link-btn { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 600; min-height: 32px; }
+/* Logo e íconos */
+.brand-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--bs-primary); display: inline-grid; place-items: center; flex-shrink: 0; }
+.brand-mark svg { width: 18px; height: 18px; }
+.btn svg, .badge svg, .nav-link svg, .icon svg { width: 1.1em; height: 1.1em; flex-shrink: 0; }
+.icon { display: inline-flex; }
 
-/* Tarjetas */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
-.card h3 { font-size: 17px; }
-.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+/* App: menú lateral en escritorio, barra inferior en celular */
+.sidebar { min-height: calc(100vh - 56px); }
+.sidebar .nav-link { color: var(--bs-body-color); text-align: left; }
+.sidebar .nav-link.active { color: #fff; }
+.bottom-nav .nav-link { color: var(--bs-secondary-color); font-size: .72rem; padding: .5rem 0; }
+.bottom-nav .nav-link svg { width: 20px; height: 20px; }
+.bottom-nav .nav-link.active { color: var(--bs-primary); }
+@media (max-width: 991.98px) { .app-main { padding-bottom: 5.5rem !important; } }
 
-/* Chips */
-.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-.chip svg { width: 12px; height: 12px; }
-.chip-negocio { background: var(--negocio-bg); color: var(--negocio); }
-.chip-personal { background: var(--personal-bg); color: var(--personal); }
-.chip-internal { background: var(--internal-bg); color: var(--internal); }
-.chip-review { background: var(--warn-bg); color: var(--warn); }
+/* Subir cartola */
+.dropzone { border: 2px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: pointer; }
+.dropzone.over { border-color: var(--bs-primary); background: var(--bs-primary-bg-subtle); }
 
-/* ---------- Landing ---------- */
-.landing { padding-inline: 20px; }
-.l-nav { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding-block: 18px; gap: 12px; }
-.logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
-.logo-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
-.logo-mark svg { width: 18px; height: 18px; }
-.l-links { display: flex; gap: 22px; align-items: center; }
-.l-links a { color: var(--muted); text-decoration: none; font-weight: 500; }
-.l-links a:hover { color: var(--fg); }
-.hero { max-width: 980px; margin: 0 auto; text-align: center; padding-block: 72px 40px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
-.hero h1 { font-size: clamp(40px, 7vw, 76px); line-height: 1.02; font-weight: 800; letter-spacing: -0.035em; }
-.hero h1 .dim { color: #5d6f72; display: block; }
-.hero .lead { font-size: clamp(16px, 2vw, 19px); color: var(--muted); max-width: 640px; }
-.badge { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); border: 1px solid var(--line); padding: 4px 12px; border-radius: 999px; }
-.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-.trust { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; color: var(--muted); font-size: 13px; }
-.trust span { display: inline-flex; align-items: center; gap: 6px; }
-.trust svg { width: 15px; height: 15px; color: var(--accent); }
+/* Movimientos */
+.tx-amt.pos { color: var(--bs-success); }
+.is-internal .tx-amt { color: var(--bs-secondary-color); text-decoration: line-through; }
+/* Calendario de gastos */
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-btn { min-height: 56px; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--bs-border-color); line-height: 1.2; }
+.cal-amt { font-size: .68rem; opacity: .85; }
+.cal-sel { outline: 2px solid var(--bs-body-color); outline-offset: 1px; }
+.cal-key { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
 
-.preview { max-width: 1120px; margin: 8px auto 0; border: 1px solid var(--line); border-radius: 22px; background: radial-gradient(120% 80% at 50% 0%, #15302d 0%, var(--surface) 55%); padding: 22px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; }
-.p-label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.p-label i { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
-.p-big { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.03em; }
-
-.section { max-width: 1120px; margin: 0 auto; padding-block: 88px 24px; }
-.section h2 { font-size: clamp(30px, 4.5vw, 50px); line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
-.section h2 .accent { color: var(--accent); display: block; }
-.duo { display: grid; grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1fr); align-items: center; margin-top: 36px; }
-.duo-line { height: 2px; background: repeating-linear-gradient(90deg, var(--faint) 0 6px, transparent 6px 12px); }
-.device-desk { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px; }
-.device-desk .bar { display: flex; gap: 6px; margin-bottom: 12px; }
-.device-desk .bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
-.drop { border: 1.5px dashed #37505a; border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); }
-.phone { width: 250px; max-width: 100%; justify-self: center; border: 1px solid var(--line); border-radius: 34px; padding: 14px; background: #0a0f10; }
-.phone-screen { border-radius: 24px; background: var(--surface); padding: 16px 14px; min-height: 300px; display: flex; flex-direction: column; gap: 10px; }
-.push { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size: 13px; }
-.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
-.feature h3 { font-size: 19px; margin-bottom: 6px; }
-.footer { max-width: 1120px; margin: 64px auto 0; padding-block: 28px 40px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--faint); font-size: 13px; }
-
-/* ---------- Acceso / onboarding ---------- */
-.center-wrap { min-height: 100%; display: grid; place-items: center; padding: 32px 16px; }
-.panel { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 18px; }
-.panel h1 { font-size: 30px; }
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field label { font-size: 13px; font-weight: 600; color: var(--muted); }
-.input { min-height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); width: 100%; }
-.input:focus { outline: none; border-color: var(--accent); }
-.divider { display: flex; align-items: center; gap: 12px; color: var(--faint); font-size: 13px; }
-.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.steps { display: flex; gap: 8px; }
-.steps i { flex: 1; height: 4px; border-radius: 4px; background: var(--line); }
-.steps i.on { background: var(--accent); }
-.check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: var(--muted); }
-.check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
-.banks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.bank { min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); text-align: left; padding: 8px 12px; font-weight: 600; }
-.bank[aria-pressed="true"] { border-color: var(--accent); background: var(--negocio-bg); }
-.guide { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
-.dropzone { border: 1.5px dashed #37505a; border-radius: 14px; padding: 24px 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.dropzone.over { border-color: var(--accent); background: var(--negocio-bg); }
-.result { border-radius: 12px; padding: 12px 14px; font-size: 14px; }
-.result.ok { background: #10302b; color: #bff3e8; }
-.result.err { background: #3a1915; color: #ffd0c8; }
-.acc-list { display: flex; flex-direction: column; gap: 8px; }
-.acc { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
-
-/* ---------- App ---------- */
-.app { display: flex; min-height: 100%; }
-.side { width: 232px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh; }
-.side nav { display: flex; flex-direction: column; gap: 4px; }
-.nav-btn { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 0; background: none; color: var(--muted); font-weight: 600; text-align: left; }
-.nav-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-.nav-btn[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
-.nav-btn[aria-current="page"] svg { color: var(--accent); }
-.main { flex: 1; min-width: 0; padding: 24px 28px 40px; }
-.main-inner { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-.topline { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
-.topline h1 { font-size: 28px; }
-.grid-2 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-.col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.balance { font-family: var(--font-display); font-size: clamp(38px, 6vw, 52px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; }
-.acc-pills { display: flex; gap: 8px; flex-wrap: wrap; }
-.acc-pill { font-size: 12px; color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px; }
-.alert { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--radius); padding: 16px; display: flex; gap: 12px; }
-.alert svg { width: 22px; height: 22px; color: var(--warn); flex-shrink: 0; }
-.alert strong { color: #ffd79a; }
-.alert p { color: #ead7b4; font-size: 14px; }
-.ok-box { background: #10302b; border: 1px solid #1d4b44; border-radius: var(--radius); padding: 16px; color: #bff3e8; }
-.summary-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.summary-list li { display: flex; gap: 10px; font-size: 15px; }
-.summary-list li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 9px; flex-shrink: 0; }
-.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.split .box { border-radius: 12px; padding: 12px; background: var(--surface-2); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.split .v { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
-.bar-track { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: var(--surface-2); gap: 2px; }
-.qr-card { display: flex; gap: 16px; align-items: center; }
-.qr-box { background: #fff; padding: 8px; border-radius: 10px; width: 112px; height: 112px; flex-shrink: 0; display: grid; place-items: center; }
+/* Botón de modo oscuro: sobre la barra inferior en el celular */
+.theme-btn { bottom: 0; z-index: 1040; width: 42px; height: 42px; padding: 0; display: grid; place-items: center; background: var(--bs-body-bg); color: var(--bs-body-color); }
+.theme-btn:hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color); }
+.theme-btn svg { width: 20px; height: 20px; }
+@media (max-width: 991.98px) { .theme-btn { bottom: 4rem; } }
+.qr-box { width: 112px; height: 112px; flex-shrink: 0; display: grid; place-items: center; }
 .qr-box img, .qr-box canvas { width: 96px !important; height: 96px !important; }
 
-.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.toolbar .input { flex: 1 1 220px; }
-.filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-.filter { flex: none; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-weight: 600; font-size: 13px; }
-.filter[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-.tx-group { display: flex; flex-direction: column; }
-.tx-date { font-size: 12px; color: var(--faint); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 14px 4px 6px; }
-.tx { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 6px; }
-.tx:hover { border-color: #37505a; }
-.tx-desc { font-weight: 600; overflow-wrap: anywhere; }
-.tx-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--faint); grid-column: 1 / -1; }
-.tx-amt { font-weight: 700; white-space: nowrap; grid-row: 1; grid-column: 2; }
-.tx-amt.pos { color: var(--pos); }
-.tx.is-internal .tx-amt { color: var(--muted); text-decoration: line-through; text-decoration-color: #4b5f63; }
-
+/* Gráfico de proyección */
 .chart-wrap { width: 100%; overflow-x: auto; }
 .chart-wrap svg { display: block; width: 100%; min-width: 300px; height: auto; }
-.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
-.upcoming { display: flex; flex-direction: column; }
-.up { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.up:last-child { border-bottom: 0; }
-
-/* Hoja inferior / panel de corrección */
-.scrim { position: fixed; inset: 0; background: rgba(4, 8, 9, .62); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
-.sheet { width: 100%; max-width: 520px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px 20px 0 0; padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; max-height: 92vh; overflow-y: auto; }
-.seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.seg button { min-height: 52px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.seg button svg { width: 18px; height: 18px; }
-.seg button[aria-pressed="true"].neg { border-color: var(--negocio); background: var(--negocio-bg); color: var(--negocio); }
-.seg button[aria-pressed="true"].per { border-color: var(--personal); background: var(--personal-bg); color: var(--personal); }
-
-.toast { position: fixed; left: 50%; transform: translateX(-50%); top: calc(14px + env(safe-area-inset-top, 0px)); z-index: 60; width: min(420px, calc(100% - 32px)); background: #1f2b2f; border: 1px solid #36505a; border-radius: 16px; padding: 12px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.45); display: flex; gap: 12px; animation: drop .35s ease; }
-@keyframes drop { from { transform: translate(-50%, -16px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-.toast .logo-mark { flex-shrink: 0; }
-
-.bottom-nav { display: none; }
-.demo-tag { font-size: 12px; color: var(--warn); border: 1px solid var(--warn-line); background: var(--warn-bg); padding: 3px 10px; border-radius: 999px; }
-textarea.input { min-height: 160px; padding: 10px 12px; font-family: ui-monospace, monospace; font-size: 12px; resize: vertical; }
-
-/* Gráficos interactivos y animaciones */
 .chart-int { position: relative; }
 .ff-chart { touch-action: pan-y; }
 .ff-chart .ff-hit { cursor: crosshair; }
-.ff-min { cursor: ns-resize; }
-.ff-chart.dragging { cursor: ns-resize; }
-.ff-chart.dragging .ff-min-knob { fill: var(--danger); }
-.ff-tip { position: absolute; z-index: 5; pointer-events: none; min-width: 190px; max-width: 260px; background: #1f2b2f; border: 1px solid #36505a; border-radius: 12px; padding: 10px 12px; font-size: 13px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.ff-min, .ff-chart.dragging { cursor: ns-resize; }
+.ff-tip { position: absolute; z-index: 5; pointer-events: none; min-width: 190px; max-width: 260px; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); padding: .5rem .75rem; font-size: .8rem; display: flex; flex-direction: column; gap: 2px; box-shadow: var(--bs-box-shadow-sm); }
 .ff-tip[hidden] { display: none; }
-.ff-tip b { font-weight: 700; }
-.tip-warn { color: var(--warn); }
-.ff-chart.anim .ff-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ff-draw 1.2s cubic-bezier(.4,0,.2,1) .15s forwards; }
-.ff-chart.anim .ff-band { animation: ff-fade .9s ease .35s both; }
-.ff-chart.anim .ff-pt { animation: ff-pop .4s ease both; transform-box: fill-box; transform-origin: center; }
-.ff-pulse { transform-box: fill-box; transform-origin: center; animation: ff-pulse 2.2s ease-in-out 1.4s infinite; }
-.bar-track span { transform-origin: left; }
-.bar-track.anim span { animation: ff-grow .9s cubic-bezier(.4,0,.2,1) both; }
-.bar-track.anim span:nth-child(2) { animation-delay: .1s; } .bar-track.anim span:nth-child(3) { animation-delay: .2s; } .bar-track.anim span:nth-child(4) { animation-delay: .3s; }
+.tip-warn { color: var(--bs-warning-text-emphasis); }
+.legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+.ff-chart.anim .ff-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ff-draw 1s ease .1s forwards; }
+.ff-chart.anim .ff-band { animation: ff-fade .8s ease .3s both; }
 @keyframes ff-draw { to { stroke-dashoffset: 0; } }
 @keyframes ff-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes ff-pop { from { transform: scale(0); } to { transform: scale(1); } }
-@keyframes ff-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
-@keyframes ff-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-/* ---------- Responsive ---------- */
-@media (max-width: 900px) {
-  .preview { grid-template-columns: minmax(0, 1fr); }
-  .duo { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .duo-line { width: 2px; height: 36px; justify-self: center; background: repeating-linear-gradient(180deg, var(--faint) 0 6px, transparent 6px 12px); }
-  .features { grid-template-columns: minmax(0, 1fr); }
-  .l-links a { display: none; }
-  .side { display: none; }
-  .main { padding: 18px 16px calc(92px + env(safe-area-inset-bottom, 0px)); }
-  .grid-2 { grid-template-columns: minmax(0, 1fr); }
-  .bottom-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(12, 18, 20, .96); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); backdrop-filter: blur(8px); }
-  .bottom-nav .nav-btn { flex-direction: column; gap: 3px; justify-content: center; font-size: 11px; min-height: 62px; padding: 0; text-align: center; border-radius: 0; }
-  .bottom-nav .nav-btn[aria-current="page"] { background: none; color: var(--accent); }
-  .qr-desktop { display: none; }
-}
-@media (max-width: 420px) {
-  .banks { grid-template-columns: minmax(0, 1fr); }
-  .split .v { font-size: 20px; }
-}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
+<script>
+/* Modo claro/oscuro de Bootstrap (data-bs-theme). Se aplica antes de dibujar para que no parpadee. */
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('finflow-tema'); } catch (e) { /* sin almacenamiento */ }
+  if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-bs-theme', t);
+})();
+</script>
 </head>
 <body>
 <div id="root"></div>
+<button id="tema" type="button" class="btn btn-body border rounded-circle shadow-sm position-fixed end-0 m-3 theme-btn"></button>
+<script>
+(function () {
+  var btn = document.getElementById('tema');
+  var sol = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>';
+  var luna = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>';
+  function pintar() {
+    var oscuro = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    btn.innerHTML = oscuro ? sol : luna;
+    btn.title = oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    btn.setAttribute('aria-label', btn.title);
+  }
+  btn.addEventListener('click', function () {
+    var nuevo = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', nuevo);
+    try { localStorage.setItem('finflow-tema', nuevo); } catch (e) { /* sin almacenamiento */ }
+    pintar();
+  });
+  pintar();
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://js.fintoc.com/v1/"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
 <script>
 window.FINFLOW_URL = undefined;
 /* Cartolas FICTICIAS de ejemplo (Valentina Rojas Fuentes). */
@@ -278,13 +120,13 @@ window.SAMPLE_RUT = "Fecha;Descripci\u00f3n;Cargos;Abonos;Saldo\n03/04/2026;PAGO
 window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,-15120,64880\n2026-04-11,PAGO SPOTIFY,-6990,57890\n2026-04-12,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,157890\n2026-04-14,PAGO FIGMA,-15000,142890\n2026-04-14,PAGO EN PEDIDOSYA,-14858,128032\n2026-04-19,PAGO EN UBER,-6812,121220\n2026-04-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,21220\n2026-04-28,PAGO EN PEDIDOSYA,-10744,10476\n2026-05-11,PAGO SPOTIFY,-6990,3486\n2026-05-13,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,103486\n2026-05-14,PAGO FIGMA,-15000,88486\n2026-05-17,PAGO EN UBER,-8702,79784\n2026-05-19,COBRO LINK DE PAGO DISENO LOGO,45000,124784\n2026-05-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,24784\n2026-05-23,COBRO LINK DE PAGO DISENO LOGO,45000,69784\n2026-05-25,PAGO EN UBER,-8490,61294\n2026-06-06,PAGO EN RAPPI,-7918,53376\n2026-06-11,PAGO SPOTIFY,-6990,46386\n2026-06-11,COBRO LINK DE PAGO DISENO LOGO,85000,131386\n2026-06-13,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,231386\n2026-06-14,PAGO FIGMA,-15000,216386\n2026-06-16,PAGO EN PEDIDOSYA,-9575,206811\n2026-06-19,COBRO LINK DE PAGO DISENO LOGO,85000,291811\n2026-06-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,191811\n2026-06-25,PAGO EN UBER,-8119,183692\n2026-07-10,PAGO EN PEDIDOSYA,-8386,175306\n2026-07-11,PAGO SPOTIFY,-6990,168316\n2026-07-12,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,268316\n2026-07-13,COBRO LINK DE PAGO DISENO LOGO,85000,353316\n2026-07-14,PAGO FIGMA,-15000,338316\n2026-07-14,PAGO EN RAPPI,-12049,326267\n2026-07-20,PAGO EN RAPPI,-11220,315047\n2026-07-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,215047\n2026-08-04,COBRO LINK DE PAGO DISENO LOGO,120000,335047\n2026-08-04,PAGO EN UBER,-13634,321413\n2026-08-09,PAGO EN UBER,-15867,305546\n2026-08-11,PAGO SPOTIFY,-6990,298556\n2026-08-12,PAGO EN UBER,-8012,290544\n2026-08-12,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,390544\n2026-08-13,PAGO EN PEDIDOSYA,-16394,374150\n2026-08-14,PAGO FIGMA,-15000,359150\n2026-08-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,259150\n2026-09-07,PAGO EN RAPPI,-14073,245077\n2026-09-11,PAGO SPOTIFY,-6990,238087\n2026-09-13,TRANSFERENCIA RECIBIDA DE VALENTINA ROJAS,100000,338087\n2026-09-14,PAGO FIGMA,-15000,323087\n2026-09-21,TRANSFERENCIA ENVIADA A VALENTINA ROJAS,-100000,223087\n2026-09-27,COBRO LINK DE PAGO DISENO LOGO,60000,283087\n2026-09-27,PAGO EN UBER,-9714,273373\n";
 </script>
 <script>
-/* FinFlow · lógica del prototipo (se ejecuta en el navegador).
+/* Lógica de FinFlow (corre en el navegador).
    Importación de cartolas CSV, clasificación Negocio/Personal con reglas y motivo,
    transferencias internas, resumen del mes y proyección a 4 semanas. */
 (function (root) {
   'use strict';
 
-  // ---------- utilidades ----------
+  // utilidades
   const strip = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().trim();
   const DAY = 86400000;
   const toDate = (iso) => new Date(iso + 'T12:00:00');
@@ -301,7 +143,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     };
   }
 
-  // ---------- lectura CSV ----------
+  // lectura CSV
   function splitLine(line, delim) {
     const out = []; let cur = ''; let q = false;
     for (let i = 0; i < line.length; i++) {
@@ -342,7 +184,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     balance: /^(SALDO|SALDO DISPONIBLE|BALANCE)$/,
   };
 
-  /** Lee una cartola CSV. Devuelve filas en orden cronológico y el resultado de la validación de saldo. */
+  // Lee una cartola CSV. Devuelve filas en orden cronológico y el resultado de la validación de saldo.
   function parseStatement(text) {
     const lines = String(text).replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) throw new Error('El archivo no tiene movimientos.');
@@ -379,7 +221,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return { rows, check, delimiter: delim };
   }
 
-  // ---------- clasificación ----------
+  // clasificación
   const RULES = [
     // [regex sobre la glosa, ámbito, motivo]
     [/ARRIENDO DEPTO|ARRIENDO CASA|DIVIDENDO/, 'personal', 'arriendo de vivienda'],
@@ -396,7 +238,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   ];
   const COMPANY = /\b(SPA|LTDA|LIMITADA|EIRL|S\.?A\.?)\b/;
 
-  /** Clave de contraparte para las reglas personales: glosa sin números ni prefijos. */
+  // Clave de contraparte para las reglas personales: glosa sin números ni prefijos.
   function counterpartyKey(description) {
     return strip(description)
       .replace(/^(PAGO EN|PAGO|COMPRA|PAC|TRANSF(ERENCIA)?( RECIBIDA| ENVIADA)? (DE|A)|COBRO)\s+/, '')
@@ -405,11 +247,11 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
 
   function classify(tx, userRules) {
     const key = counterpartyKey(tx.description);
-    if (userRules && typeof userRules[key] === 'string') return { scope: userRules[key], reason: 'tu corrección anterior', source: 'user', review: false };
+    if (userRules && typeof userRules[key] === 'string') { const r = RULES.find(([re]) => re.test(strip(tx.description))); return { scope: userRules[key], tag: r ? r[2] : undefined, reason: 'tu corrección anterior', source: 'user', review: false }; }
     const g = strip(tx.description);
     for (const [re, scope, why] of RULES) {
       const m = g.match(re);
-      if (m) return { scope, reason: `por la glosa: ${m[0].trim()} (${why})`, source: 'rule', review: false };
+      if (m) return { scope, tag: why, reason: `por la glosa: ${m[0].trim()} (${why})`, source: 'rule', review: false };
     }
     if (tx.amount > 0 && COMPANY.test(g)) return { scope: 'negocio', reason: 'te pagó una empresa', source: 'rule', review: false };
     if (tx.amount > 0 && /TRANSF/.test(g)) return { scope: 'personal', reason: 'transferencia de una persona', source: 'rule', review: true };
@@ -421,7 +263,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return amount >= 0 ? 'ingreso_personal' : 'gasto_personal';
   }
 
-  // ---------- transferencias internas ----------
+  // transferencias internas
   function holderTokens(name) { return strip(name).split(/\s+/).filter((t) => t.length >= 3); }
   const TRANSFER = /TRASP|TRANSF|TEF/;
 
@@ -446,7 +288,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return txs;
   }
 
-  // ---------- armado de movimientos ----------
+  // armado de movimientos
   function buildTransactions(accounts, holderName, userRules) {
     const txs = [];
     for (const acc of accounts) {
@@ -468,7 +310,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return txs;
   }
 
-  /** Une filas nuevas a una cuenta, sin duplicados (misma fecha, glosa, monto y orden en el día). */
+  // Une filas nuevas a una cuenta, sin duplicados (misma fecha, glosa, monto y orden en el día).
   function mergeRows(existing, incoming) {
     const key = (r, n) => `${r.date}|${strip(r.description)}|${r.amount}|${n}`;
     const count = {};
@@ -485,7 +327,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return { rows, added: added.length, duplicates: incoming.length - added.length };
   }
 
-  // ---------- resumen ----------
+  // resumen
   function monthKey(isoStr) { return isoStr.slice(0, 7); }
 
   function monthSummary(txs, ym) {
@@ -519,8 +361,8 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     });
   }
 
-  // ---------- proyección ----------
-  /** Detecta movimientos que se repiten cada mes (≥3 meses, monto parecido, día parecido). */
+  // proyección
+  // Detecta movimientos que se repiten cada mes (≥3 meses, monto parecido, día parecido).
   function recurring(txs) {
     const groups = {};
     const allMonths = new Set(txs.map((t) => monthKey(t.date))).size;
@@ -549,11 +391,8 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return Math.round(sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo));
   }
 
-  /**
-   * Proyección a 4 semanas.
-   * saldo futuro = saldo hoy + recurrentes con fecha + flujo no recurrente semanal (Holt, suavizado exponencial con tendencia)
-   * Incertidumbre: 200 escenarios remuestreando los errores históricos del modelo semanal.
-   */
+  // Proyección a 4 semanas: saldo de hoy + movimientos fijos en su fecha + el resto proyectado por semana.
+  // Para el rango se repite el cálculo 200 veces con la variación real de la historia.
   function project(txs, startBalance, today, minimum, opts = {}) {
     const weeks = 4;
     const hist = txs.filter((t) => !t.internal && t.date <= today);
@@ -618,7 +457,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return { today, startBalance, minimum, enough, historyDays, points, upcoming, recurring: rec, dailyPersonal, alert };
   }
 
-  // ---------- resumen inteligente (reglas, sin modelo de lenguaje) ----------
+  // resumen inteligente (reglas, sin modelo de lenguaje)
   const fmt = (n) => '$' + Math.round(Math.abs(n)).toLocaleString('es-CL');
   const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const monthName = (ym) => MONTHS[Number(ym.slice(5, 7)) - 1];
@@ -648,7 +487,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   function titleCase(s) { return s.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase()).replace(/\b(Spa|Ltda|Eirl)\b/g, (x) => x.toUpperCase()); }
   function shortDate(isoStr) { const d = toDate(isoStr); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; }
 
-  // ---------- exportar ----------
+  // exportar
   function toCSV(txs) {
     const head = 'fecha,cuenta,descripcion,monto,ambito,categoria,transferencia_interna';
     const esc = (v) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : v;
@@ -660,27 +499,25 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
 
 </script>
 <script>
-/* FinFlow · interfaz del prototipo. Depende de FF (logic.js) y de SAMPLE_RUT / SAMPLE_MP. */
+/* Interfaz: pantallas y eventos. Usa la lógica de arriba (FF). */
 (function () {
   'use strict';
   const $root = document.getElementById('root');
   const STORE = 'finflow-proto-v1';
   const SHARE_URL = window.FINFLOW_URL || location.href;
 
-  // ---------- iconos (trazo) ----------
+  // iconos (trazo)
   const I = {
-    logo: '<svg viewBox="0 0 24 24" fill="none" stroke="#062320" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 3 7-8"/></svg>',
+    logo: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 3 7-8"/></svg>',
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
     list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M4 16l5-5 4 3 7-8"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
     user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
     warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.5"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
-    brief: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>',
-    person: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',
-    swap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>',
     upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>',
   };
 
@@ -689,14 +526,15 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   const signed = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(n);
   const kfmt = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toLocaleString('es-CL', { maximumFractionDigits: 1 }) + ' M' : '$' + Math.round(n / 1000) + ' mil');
 
-  // ---------- estado ----------
+  // estado
   const FINTOC = { enabled: false, busy: false, msg: null };
-  const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false, toast: false });
+  const GOOGLE = { clientId: '', listo: false };
+  const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false });
   let S = fresh();
-  try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.accounts) S = Object.assign(fresh(), saved, { sheetId: null, toast: false, confirmDelete: false, exportOpen: false, importMsg: null }); } catch (e) { /* sin almacenamiento */ }
-  function save() { try { const { sheetId, toast, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } }
+  try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.accounts) S = Object.assign(fresh(), saved, { sheetId: null, confirmDelete: false, exportOpen: false, importMsg: null }); } catch (e) { /* sin almacenamiento */ }
+  function save() { try { const { sheetId, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } }
 
-  // ---------- datos derivados ----------
+  // datos derivados
   let D = null;
   function derive(state) {
     if (!state.accounts.length) return null;
@@ -718,7 +556,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   })();
   const SAMPLE = derive(SAMPLE_STATE);
 
-  // ---------- gráfico de proyección ----------
+  // gráfico de proyección
   // Registro de gráficos dibujados (para tooltip y arrastre del mínimo).
   const CHARTS = {}; let chartSeq = 0; let animateNext = true;
   function chart(d, opts = {}) {
@@ -761,7 +599,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
       ${minStatic}
       <line class="ff-guide" x1="0" x2="0" y1="${padT}" y2="${H - padB}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 4" visibility="hidden"/>
       <polyline class="ff-line" pathLength="1" points="${line}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-      ${med.map((v, i) => `<circle class="ff-pt" style="animation-delay:${0.25 + i * 0.18}s" cx="${xs[i]}" cy="${y(v)}" r="3.5" fill="var(--accent)"/>`).join('')}
+      ${med.map((v, i) => `<circle class="ff-pt" cx="${xs[i]}" cy="${y(v)}" r="3.5" fill="var(--accent)"/>`).join('')}
       ${dot}${xl}
       <circle class="ff-hover" r="7" fill="var(--accent)" stroke="var(--bg)" stroke-width="3" visibility="hidden"/>
       <rect class="ff-hit" data-chart="${id}" x="${padL - 10}" y="${padT}" width="${W - padL - padR + 20}" height="${H - padT - padB}" fill="transparent"/>
@@ -852,211 +690,369 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     return 'En los 20 de cada 20 escenarios tu saldo se mantiene sobre tu mínimo.';
   }
 
-  // ---------- landing ----------
+  // piezas que se repiten
+  const brand = () => `<span class="d-inline-flex align-items-center gap-2 fw-bold"><span class="brand-mark">${I.logo}</span>FinFlow</span>`;
+  const BADGE = { negocio: 'text-bg-primary', personal: 'text-bg-secondary', internal: 'bg-body-secondary text-body border', review: 'text-bg-warning' };
+
+  // landing
   function viewLanding() {
     const d = SAMPLE; const a = d.proj.alert;
-    return `<div class="landing">
-      <header class="l-nav">
-        <span class="logo"><span class="logo-mark">${I.logo}</span>FinFlow</span>
-        <nav class="l-links" aria-label="Secciones">
-          <a href="#como">Cómo funciona</a><a href="#privacidad">Privacidad</a>
-          <button class="btn" data-act="go-auth">Entrar</button>
-        </nav>
-      </header>
-      <section class="hero">
-        <span class="badge"><i></i>Para trabajadores independientes en Chile</span>
-        <h1>Tu negocio y tu plata, separados.<span class="dim">Y sabes cómo llegas a fin de mes.</span></h1>
-        <p class="lead">Sube la cartola de tu banco. FinFlow separa lo del negocio de lo personal, te muestra cuánto ganaste de verdad y te avisa una semana antes de quedar corto.</p>
-        <div class="hero-ctas">
-          <button class="btn btn-primary" data-act="try-sample">Probar con datos de ejemplo</button>
-          <button class="btn" data-act="go-auth">Subir mi cartola</button>
+    return `
+    <nav class="navbar navbar-expand bg-body border-bottom sticky-top">
+      <div class="container">
+        <span class="navbar-brand">${brand()}</span>
+        <div class="navbar-nav ms-auto align-items-center gap-2">
+          <a class="nav-link d-none d-md-block" href="#como">Cómo funciona</a>
+          <a class="nav-link d-none d-md-block" href="#privacidad">Privacidad</a>
+          <button class="btn btn-outline-primary btn-sm" data-act="go-auth" data-modo="entrar">Entrar</button>
         </div>
-        <div class="trust">
-          <span>${I.lock}No pedimos tu clave del banco</span>
-          <span>${I.shield}Exportas o borras tus datos cuando quieras</span>
-        </div>
-      </section>
+      </div>
+    </nav>
 
-      <section class="preview" aria-label="Vista previa con datos de ejemplo">
-        <div class="stack" style="min-width:0">
-          <div class="p-label">Ejemplo: Valentina, diseñadora freelance · datos ficticios</div>
-          <div class="eyebrow">Saldo en sus 2 cuentas</div>
-          <div class="p-big num">${fmt(d.total)}</div>
-          <div class="chart-wrap">${chart(d, { w: 640, h: 220, noDrag: true })}</div>
-          <p class="small muted">${esc(phrase(d.proj))}</p>
+    <header class="container py-5">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <p class="text-primary fw-semibold mb-2">Para trabajadores independientes en Chile</p>
+          <h1 class="display-5 fw-bold mb-3">Tu negocio y tu plata, separados.</h1>
+          <p class="lead text-body-secondary mb-4">Sube la cartola de tu banco o conéctalo. FinFlow separa lo del negocio de lo personal, te muestra cuánto ganaste de verdad y te avisa una semana antes de quedar corto.</p>
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            <button class="btn btn-primary btn-lg" data-act="try-sample">Probar con datos de ejemplo</button>
+            <button class="btn btn-outline-secondary btn-lg" data-act="go-auth">Subir mi cartola</button>
+          </div>
+          <ul class="list-unstyled small text-body-secondary mb-0">
+            <li class="d-flex align-items-center gap-2 mb-1"><span class="icon text-success">${I.lock}</span>No pedimos tu clave del banco</li>
+            <li class="d-flex align-items-center gap-2"><span class="icon text-success">${I.shield}</span>Exportas o borras tus datos cuando quieras</li>
+          </ul>
         </div>
-        <div class="stack" style="min-width:0">
-          ${a ? `<div class="alert">${I.warn}<div class="stack" style="gap:4px"><strong>Semana del ${FF.shortDate(a.start)}: podría bajar de su mínimo</strong><p>Llegaría a ${fmt(a.amount)}. Le alcanza para ${a.daysCovered} días de gastos personales.</p></div></div>` : ''}
-          <div class="card stack">
-            <div class="eyebrow">${FF.monthName(d.ym)} · negocio vs. personal</div>
-            <div class="split">
-              <div class="box"><span class="chip chip-negocio">${I.brief}Negocio</span><span class="v num">${fmt(d.month.utilidad)}</span><span class="xs muted">utilidad del mes</span></div>
-              <div class="box"><span class="chip chip-personal">${I.person}Personal</span><span class="v num">${fmt(d.month.gasto_personal)}</span><span class="xs muted">gastos personales</span></div>
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-header small text-body-secondary">Ejemplo: Valentina, diseñadora freelance (datos ficticios)</div>
+            <div class="card-body">
+              <div class="small text-body-secondary">Saldo en sus 2 cuentas</div>
+              <div class="fs-1 fw-bold num mb-2">${fmt(d.total)}</div>
+              <div class="chart-wrap">${chart(d, { w: 640, h: 220, noDrag: true })}</div>
+              <p class="small text-body-secondary mt-2 mb-0">${esc(phrase(d.proj))}</p>
             </div>
-            <p class="xs muted">${fmt(d.month.internal)} movidos entre sus cuentas no cuentan como ingreso.</p>
+            ${a ? `<div class="card-footer bg-warning-subtle text-warning-emphasis small"><strong>Semana del ${FF.shortDate(a.start)}:</strong> podría bajar de su mínimo y llegar a ${fmt(a.amount)}. Le alcanza para ${a.daysCovered} días de gastos personales.</div>` : ''}
           </div>
         </div>
-      </section>
+      </div>
+    </header>
 
-      <section class="section" id="como">
-        <h2>Importas en el computador.<span class="accent">Te avisa en el bolsillo.</span></h2>
-        <p class="muted" style="max-width:620px;margin-top:14px">Descargas la cartola desde la web de tu banco y la subes. Escaneas un código QR y FinFlow queda en tu celular con tu sesión, como una app más.</p>
-        <div class="duo">
-          <div class="device-desk">
-            <div class="bar"><i></i><i></i><i></i></div>
-            <div class="drop stack" style="align-items:center">${I.upload}<strong style="color:var(--fg)">cartola_cuentarut.csv</strong><span class="small">114 movimientos · saldo verificado</span></div>
-          </div>
-          <div class="duo-line" aria-hidden="true"></div>
-          <div class="phone"><div class="phone-screen">
-            <span class="xs faint">9:41</span>
-            <div class="push"><div class="row" style="gap:8px"><span class="logo-mark" style="width:20px;height:20px;border-radius:6px">${I.logo}</span><strong>FinFlow</strong><span class="xs faint">ahora</span></div><p style="margin-top:6px">La semana del ${a ? FF.shortDate(a.start) : '22 oct'} podrías bajar de tu mínimo. Te alcanza para ${a ? a.daysCovered : 16} días.</p></div>
-            <div class="eyebrow" style="margin-top:6px">Saldo</div>
-            <div class="p-big num" style="font-size:30px">${fmt(d.total)}</div>
+    <section class="bg-body-tertiary border-top border-bottom py-5" id="como">
+      <div class="container">
+        <h2 class="fw-bold mb-2">Cómo funciona</h2>
+        <p class="text-body-secondary mb-4">Lo importas una vez en el computador y después lo revisas desde el celular.</p>
+        <div class="row g-4">
+          <div class="col-md-4"><div class="card h-100"><div class="card-body">
+            <span class="badge rounded-pill text-bg-primary mb-2">1</span>
+            <h3 class="h5">Subes tu cartola</h3>
+            <p class="text-body-secondary mb-0">Descargas la cartola desde la web de tu banco y la subes en Excel o CSV. También puedes conectar tu banco en modo solo lectura.</p>
+          </div></div></div>
+          <div class="col-md-4"><div class="card h-100"><div class="card-body">
+            <span class="badge rounded-pill text-bg-primary mb-2">2</span>
+            <h3 class="h5">Separa negocio y personal</h3>
+            <p class="text-body-secondary mb-0">Cada movimiento dice por qué se clasificó así. Si no está bien, lo cambias con un toque y FinFlow lo recuerda.</p>
+          </div></div></div>
+          <div class="col-md-4"><div class="card h-100"><div class="card-body">
+            <span class="badge rounded-pill text-bg-primary mb-2">3</span>
+            <h3 class="h5">Proyecta 4 semanas y te avisa</h3>
+            <p class="text-body-secondary mb-0">Ves un rango probable de tu saldo y tu mínimo. Si vas a quedar corto, te avisa una semana antes, en pesos y en días.</p>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container py-5">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-6">
+          <h2 class="fw-bold mb-2">Cuánto ganaste de verdad</h2>
+          <p class="text-body-secondary mb-0">Los traspasos entre tus propias cuentas no son ingresos. FinFlow los reconoce por tu nombre y los deja fuera, para que la utilidad del mes sea la real.</p>
+        </div>
+        <div class="col-lg-6">
+          <div class="card"><div class="card-body">
+            <div class="small text-body-secondary mb-2">${FF.monthName(d.ym)} · ejemplo de Valentina</div>
+            <div class="row g-2">
+              <div class="col-6"><div class="border rounded p-3 h-100"><span class="badge ${BADGE.negocio}">Negocio</span><div class="fs-4 fw-bold num mt-1">${fmt(d.month.utilidad)}</div><div class="small text-body-secondary">utilidad del mes</div></div></div>
+              <div class="col-6"><div class="border rounded p-3 h-100"><span class="badge ${BADGE.personal}">Personal</span><div class="fs-4 fw-bold num mt-1">${fmt(d.month.gasto_personal)}</div><div class="small text-body-secondary">gastos personales</div></div></div>
+            </div>
+            <p class="small text-body-secondary mt-3 mb-0">${fmt(d.month.internal)} movidos entre sus cuentas no cuentan como ingreso.</p>
           </div></div>
         </div>
-        <div class="features">
-          <div class="card feature"><h3>Separa negocio y personal</h3><p class="muted">Cada movimiento dice por qué se clasificó así. Si no está bien, lo cambias con un toque y FinFlow aprende.</p></div>
-          <div class="card feature"><h3>Proyecta 4 semanas</h3><p class="muted">Ves un rango probable, tu mínimo y una frase simple: en cuántos escenarios de 20 quedarías corto.</p></div>
-          <div class="card feature"><h3>Una sola alerta, a tiempo</h3><p class="muted">Te avisa una semana antes, en pesos y en días que te alcanzan. Sin bombardearte.</p></div>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="section" id="privacidad" style="padding-top:56px">
-        <div class="card" style="display:grid;gap:14px">
-          <h2 style="font-size:clamp(24px,3.5vw,34px)">Tus datos son tuyos.</h2>
-          <p class="muted" style="max-width:680px">No te pedimos la clave de tu banco: trabajamos con la cartola que tú descargas. Pedimos tu consentimiento antes de leerla, y desde tu perfil puedes exportar todo o borrar tu cuenta con sus datos.</p>
-        </div>
-      </section>
+    <section class="container pb-5" id="privacidad">
+      <div class="card bg-body-tertiary"><div class="card-body p-4">
+        <h2 class="h3 fw-bold">Tus datos son tuyos</h2>
+        <p class="text-body-secondary mb-0">No te pedimos la clave de tu banco: trabajamos con la cartola que tú descargas o con una conexión de solo lectura. Pedimos tu consentimiento antes de leer tus movimientos, y desde tu perfil puedes exportar todo o borrar tu cuenta con sus datos.</p>
+      </div></div>
+    </section>
 
-      <footer class="footer"><span>FinFlow · Proyecto APT, Capstone PTY4614 · DuocUC San Joaquín</span><span>Prototipo académico. Los datos de ejemplo son ficticios.</span></footer>
-    </div>`;
+    <footer class="border-top py-4">
+      <div class="container d-flex flex-wrap justify-content-between gap-2 small text-body-secondary">
+        <span>FinFlow · Proyecto APT, Capstone PTY4614 · DuocUC San Joaquín</span>
+        <span>Prototipo académico. Los datos de ejemplo son ficticios.</span>
+      </div>
+    </footer>`;
   }
 
-  // ---------- acceso ----------
+  // Marco de las pantallas de acceso y de configuración inicial.
+  const panel = (body) => `<div class="container py-4 py-md-5"><div class="row justify-content-center"><div class="col-md-8 col-lg-5">${body}</div></div></div>`;
+
+  // acceso
   function viewAuth() {
-    return `<div class="center-wrap"><div class="panel">
-      <button class="link-btn" data-act="go-landing" style="align-self:flex-start">← Volver</button>
-      <span class="logo"><span class="logo-mark">${I.logo}</span>FinFlow</span>
-      <h1>Crea tu cuenta</h1>
-      <p class="muted">En el prototipo el acceso es simulado: no se crea una cuenta real. En la versión final usamos Supabase Auth.</p>
-      <button class="btn btn-block" data-act="login-google"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12h8" stroke="currentColor" stroke-width="2"/></svg>Continuar con Google</button>
-      <div class="divider">o con tu correo</div>
-      <form class="stack" data-form="login">
-        <div class="field"><label for="email">Correo</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="tu@correo.cl"></div>
-        <div class="field"><label for="pass">Contraseña</label><input class="input" id="pass" type="password" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
-        <button class="btn btn-primary btn-block" type="submit">Crear cuenta</button>
-      </form>
-    </div></div>`;
+    const entrar = S.authMode === 'entrar';
+    return panel(`
+      <button class="btn btn-link btn-sm px-0 mb-3" data-act="go-landing">← Volver</button>
+      <div class="card shadow-sm"><div class="card-body p-4">
+        <div class="mb-3">${brand()}</div>
+        <h1 class="h3 mb-3">${entrar ? 'Entra a tu cuenta' : 'Crea tu cuenta'}</h1>
+        ${GOOGLE.clientId ? `<div id="google-btn" class="d-flex justify-content-center"></div>
+        <div class="d-flex align-items-center gap-3 my-3 small text-body-secondary"><hr class="flex-grow-1">o con tu correo<hr class="flex-grow-1"></div>` : ''}
+        <form data-form="login">
+          ${entrar ? '' : '<div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" required maxlength="80" autocomplete="name"></div>'}
+          <div class="mb-3"><label class="form-label" for="email">Correo</label><input class="form-control" id="email" type="email" required autocomplete="email" placeholder="tu@correo.cl"></div>
+          <div class="mb-3"><label class="form-label" for="pass">Contraseña</label><input class="form-control" id="pass" type="password" required ${entrar ? 'autocomplete="current-password"' : 'minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"'}></div>
+          <div class="text-danger small mb-3" id="auth-error" role="alert"></div>
+          <button class="btn btn-primary w-100" type="submit">${entrar ? 'Entrar' : 'Crear cuenta'}</button>
+        </form>
+        <p class="small text-center mt-3 mb-0">${entrar ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'} <a href="#" data-act="go-auth" data-modo="${entrar ? 'registro' : 'entrar'}">${entrar ? 'Créala' : 'Entra'}</a></p>
+      </div></div>`);
   }
 
-  // ---------- onboarding ----------
+  // configuración inicial
   const GUIDES = {
     'BancoEstado CuentaRUT': ['Entra a la web de BancoEstado con tu RUT.', 'Abre CuentaRUT › Movimientos o Cartola.', 'Elige el período y descarga en Excel o CSV.'],
     'Mercado Pago': ['Entra a Mercado Pago desde el computador.', 'Ve a Actividad › Descargar reportes.', 'Elige el período y descarga en Excel o CSV.'],
     'Banco de Chile': ['Entra a tu banco en línea.', 'Busca Cuentas › Movimientos o Cartola.', 'Descarga en Excel o CSV.'],
     'Santander': ['Entra a tu banco en línea.', 'Busca Cuentas › Movimientos o Cartola.', 'Descarga en Excel o CSV.'],
-    'Otro banco': ['Descarga tus movimientos en Excel o CSV.', 'Necesitamos al menos fecha, descripción y monto.', 'Si no lo reconocemos, podrás indicar las columnas (próximo sprint).'],
+    'Otro banco': ['Descarga tus movimientos en Excel o CSV.', 'Necesitamos al menos fecha, descripción y monto.'],
   };
+  const stepBar = (n) => `<div class="small text-body-secondary mb-1">Paso ${n} de 2</div><div class="progress mb-4" style="height:6px" role="progressbar" aria-label="Paso ${n} de 2" aria-valuenow="${n}" aria-valuemin="0" aria-valuemax="2"><div class="progress-bar" style="width:${n * 50}%"></div></div>`;
   function viewOnboard() {
     if (S.step === 1) {
-      return `<div class="center-wrap"><div class="panel">
-        <div class="steps" aria-label="Paso 1 de 2"><i class="on"></i><i></i></div>
-        <h1>Antes de empezar</h1>
-        <form class="stack" data-form="holder">
-          <div class="field"><label for="holder">Tu nombre tal como aparece en tu cartola</label>
-          <input class="input" id="holder" required minlength="3" value="${esc(S.holder)}" placeholder="Ej: Valentina Rojas Fuentes" autocomplete="name">
-          <span class="xs faint">Lo usamos para reconocer los traspasos entre tus propias cuentas.</span></div>
-          <label class="check"><input type="checkbox" id="consent" ${S.consent ? 'checked' : ''} required><span>Autorizo a FinFlow a leer las cartolas que yo suba o los movimientos de mi banco que yo conecte (a través de Fintoc, solo lectura) para clasificarlos y proyectar mi saldo. FinFlow no ve ni guarda mi clave bancaria. Puedo exportar o borrar mis datos y desconectar mi banco cuando quiera.</span></label>
-          <button class="btn btn-primary btn-block" type="submit">Continuar</button>
-        </form>
-      </div></div>`;
+      return panel(`${stepBar(1)}
+        <h1 class="h3 mb-3">Antes de empezar</h1>
+        <form data-form="holder">
+          <div class="mb-3"><label class="form-label" for="holder">Tu nombre tal como aparece en tu cartola</label>
+            <input class="form-control" id="holder" required minlength="3" value="${esc(S.holder)}" placeholder="Ej: Valentina Rojas Fuentes" autocomplete="name">
+            <div class="form-text">Lo usamos para reconocer los traspasos entre tus propias cuentas.</div></div>
+          <div class="form-check mb-4"><input class="form-check-input" type="checkbox" id="consent" ${S.consent ? 'checked' : ''} required>
+            <label class="form-check-label small" for="consent">Autorizo a FinFlow a leer las cartolas que yo suba o los movimientos de mi banco que yo conecte (a través de Fintoc, solo lectura) para clasificarlos y proyectar mi saldo. FinFlow no ve ni guarda mi clave bancaria. Puedo exportar o borrar mis datos y desconectar mi banco cuando quiera. El asistente de preguntas usa un servicio externo de IA y solo recibe un resumen de mis números, sin nombres ni RUT.</label></div>
+          <button class="btn btn-primary w-100" type="submit">Continuar</button>
+        </form>`);
     }
     const full = S.accounts.length >= 3;
-    const msg = S.importMsg ? `<div class="result ${S.importMsg.ok ? 'ok' : 'err'}" role="status">${esc(S.importMsg.text)}</div>` : '';
-    return `<div class="center-wrap"><div class="panel">
-      <div class="steps" aria-label="Paso 2 de 2"><i class="on"></i><i class="on"></i></div>
-      <h1>Sube tu cartola</h1>
-      <p class="muted">Puedes agregar hasta 3 cuentas, por ejemplo CuentaRUT y Mercado Pago.</p>
-      ${S.accounts.length ? `<div class="acc-list">${S.accounts.map((a) => `<div class="acc"><div><strong>${esc(a.name)}</strong><div class="xs faint">${a.rows.length} movimientos · hasta el ${FF.shortDate(a.rows[a.rows.length - 1].date)}</div></div><span class="chip chip-negocio">Lista</span></div>`).join('')}</div>` : ''}
-      ${(!full && FINTOC.enabled) ? `<div class="card stack" style="gap:8px"><span class="eyebrow">Conexión directa</span><p class="small muted">Conecta tu banco de forma segura con Fintoc (solo lectura) y traemos tus movimientos sin subir archivos.</p><button class="btn btn-primary btn-block" data-act="fintoc-connect" ${FINTOC.busy ? 'disabled' : ''}>${FINTOC.busy ? 'Conectando…' : 'Conectar mi banco'}</button><span class="xs faint">¿Prefieres no conectarlo? Sube una cartola aquí abajo.</span></div>` : ''}
+    const msg = S.importMsg ? `<div class="alert ${S.importMsg.ok ? 'alert-success' : 'alert-danger'}" role="status">${esc(S.importMsg.text)}</div>` : '';
+    return panel(`${stepBar(2)}
+      <h1 class="h3">Sube tu cartola</h1>
+      <p class="text-body-secondary">Puedes agregar hasta 3 cuentas, por ejemplo CuentaRUT y Mercado Pago.</p>
+      ${S.accounts.length ? `<ul class="list-group mb-3">${S.accounts.map((a) => `<li class="list-group-item d-flex justify-content-between align-items-center"><div><strong>${esc(a.name)}</strong><div class="small text-body-secondary">${a.rows.length} movimientos · hasta el ${FF.shortDate(a.rows[a.rows.length - 1].date)}</div></div><span class="badge text-bg-success">Lista</span></li>`).join('')}</ul>` : ''}
+      ${(!full && FINTOC.enabled) ? `<div class="card mb-3"><div class="card-body">
+        <h2 class="h6">Conexión directa</h2>
+        <p class="small text-body-secondary">Conecta tu banco con Fintoc (solo lectura) y traemos tus movimientos sin subir archivos.</p>
+        <button class="btn btn-primary w-100" data-act="fintoc-connect" ${FINTOC.busy ? 'disabled' : ''}>${FINTOC.busy ? 'Conectando…' : 'Conectar mi banco'}</button>
+        <div class="form-text">¿Prefieres no conectarlo? Sube una cartola aquí abajo.</div>
+      </div></div>` : ''}
       ${full ? '' : `
-      <div class="field"><label>¿De qué banco es?</label>
-        <div class="banks">${Object.keys(GUIDES).map((b) => `<button class="bank" data-act="bank" data-bank="${esc(b)}" aria-pressed="${S.bank === b}">${esc(b)}</button>`).join('')}</div></div>
-      <div class="card stack" style="gap:8px"><span class="eyebrow">Cómo descargarla</span><ol class="guide">${GUIDES[S.bank].map((g) => `<li>${esc(g)}</li>`).join('')}</ol><span class="xs faint">Guía referencial del prototipo; la versión final incluirá capturas por banco.</span></div>
-      <label class="dropzone" id="dropzone" for="file">${I.upload}<strong>Arrastra tu archivo aquí o elige uno</strong><span class="small muted">Excel o CSV</span><input id="file" type="file" accept=".csv,.txt,.xlsx,.xls" hidden></label>`}
+      <label class="form-label">¿De qué banco es?</label>
+      <div class="row row-cols-2 g-2 mb-3">${Object.keys(GUIDES).map((b) => `<div class="col"><button class="btn btn-outline-secondary w-100 text-start ${S.bank === b ? 'active' : ''}" data-act="bank" data-bank="${esc(b)}" aria-pressed="${S.bank === b}">${esc(b)}</button></div>`).join('')}</div>
+      <div class="card mb-3"><div class="card-body">
+        <h2 class="h6">Cómo descargarla</h2>
+        <ol class="small text-body-secondary ps-3 mb-2">${GUIDES[S.bank].map((g) => `<li>${esc(g)}</li>`).join('')}</ol>
+      </div></div>
+      <label class="dropzone d-flex flex-column align-items-center gap-1 text-center p-4 mb-3" id="dropzone" for="file">${I.upload}<strong>Arrastra tu archivo aquí o elige uno</strong><span class="small text-body-secondary">Excel o CSV</span><input id="file" type="file" accept=".csv,.txt,.xlsx,.xls" hidden></label>`}
       ${msg}
-      <div class="row wrap">
+      <div class="d-flex flex-wrap gap-2">
         ${S.accounts.length ? '<button class="btn btn-primary" data-act="finish">Ver mis números</button>' : ''}
-        <button class="btn" data-act="load-sample">Usar cartolas de ejemplo</button>
-      </div>
-    </div></div>`;
+        <button class="btn btn-outline-secondary" data-act="load-sample">Usar cartolas de ejemplo</button>
+      </div>`);
   }
 
-  // ---------- app ----------
-  const TABS = [['inicio', 'Inicio', I.home], ['movimientos', 'Movimientos', I.list], ['proyeccion', 'Proyección', I.chart], ['perfil', 'Perfil', I.user]];
-  const navButtons = () => TABS.map(([id, label, icon]) => `<button class="nav-btn" data-act="tab" data-tab="${id}" ${S.tab === id ? 'aria-current="page"' : ''}>${icon}<span>${label}</span></button>`).join('');
+  // app
+  const TABS = [['inicio', 'Inicio', I.home], ['movimientos', 'Movimientos', I.list], ['proyeccion', 'Proyección', I.chart], ['calendario', 'Calendario', I.cal], ['perfil', 'Perfil', I.user]];
+  const navButtons = (cls) => TABS.map(([id, label, icon]) => `<button class="nav-link d-flex align-items-center ${cls} ${S.tab === id ? 'active' : ''}" data-act="tab" data-tab="${id}" ${S.tab === id ? 'aria-current="page"' : ''}>${icon}<span>${label}</span></button>`).join('');
+  const pageTitle = (title, sub, right) => `<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 border-bottom pb-3 mb-4"><div><h1 class="h2 mb-0">${title}</h1>${sub ? `<p class="small text-body-secondary mb-0">${sub}</p>` : ''}</div>${right || ''}</div>`;
 
   function viewApp() {
-    const body = { inicio: tabInicio, movimientos: tabMovs, proyeccion: tabProy, perfil: tabPerfil }[S.tab]();
-    return `<div class="app">
-      <aside class="side"><span class="logo"><span class="logo-mark">${I.logo}</span>FinFlow</span><nav aria-label="Navegación principal">${navButtons()}</nav>
-        <div style="margin-top:auto" class="stack"><span class="demo-tag">Prototipo${S.sample ? ' · datos ficticios' : ''}</span></div></aside>
-      <main class="main"><div class="main-inner">${body}</div></main>
-      <nav class="bottom-nav" aria-label="Navegación principal">${navButtons()}</nav>
-      ${S.sheetId ? sheet() : ''}
-      ${S.toast ? toast() : ''}
-    </div>`;
+    const body = { inicio: tabInicio, movimientos: tabMovs, proyeccion: tabProy, calendario: tabCal, perfil: tabPerfil }[S.tab]();
+    return `
+      <nav class="navbar bg-dark sticky-top" data-bs-theme="dark">
+        <div class="container-fluid">
+          <span class="navbar-brand">${brand()}</span>
+        </div>
+      </nav>
+      <div class="container-fluid">
+        <div class="row">
+          <aside class="col-lg-2 d-none d-lg-block bg-body-tertiary border-end sidebar py-3">
+            <nav class="nav nav-pills flex-column gap-1" aria-label="Navegación principal">${navButtons('gap-2')}</nav>
+          </aside>
+          <main class="col-lg-10 px-3 px-lg-4 py-4 app-main"><div class="mx-auto" style="max-width:1100px">${body}</div></main>
+        </div>
+      </div>
+      <nav class="navbar fixed-bottom bg-body border-top d-lg-none p-0 bottom-nav" aria-label="Navegación principal"><div class="nav nav-fill w-100">${navButtons('flex-column')}</div></nav>
+      ${S.sheetId ? sheet() : ''}`;
   }
 
   function firstName() { return (S.holder || (S.user && S.user.name) || '').split(' ')[0] || 'hola'; }
 
+  // Asistente "Pregúntale a FinFlow"
+  const AI = { enabled: false, busy: false, q: '', answer: '', error: '' };
+  // Lo que recibe el asistente: solo totales ya calculados. Los pagos fijos llevan nombre solo si son
+  // comercios conocidos (Netflix, Enel...); el resto va sin nombre para no mandar personas.
+  function aiSummary() {
+    const d = D; const p = d.proj;
+    const tagOf = {}; for (const t of d.txs) if (t.tag) tagOf[FF.counterpartyKey(t.description)] = t.tag;
+    const month = (ym) => {
+      const s = FF.monthSummary(d.txs, ym);
+      return { mes: FF.monthName(ym), ingresos_negocio: s.ingreso_negocio, gastos_negocio: s.gasto_operacional, utilidad_negocio: s.utilidad, ingresos_personales: s.ingreso_personal, gastos_personales: s.gasto_personal, gastos_por_categoria: spendByTag(d.txs, ym).map((t) => ({ categoria: t.name, total: t.total })) };
+    };
+    return {
+      fecha_de_los_datos: d.today,
+      saldo_total: d.total,
+      cuentas: d.bals.map((b) => ({ cuenta: b.name, saldo: b.balance })),
+      minimo_que_quiere_mantener: p.minimum,
+      puede_gastar_por_dia: dailyPlan(d).perDay,
+      gasto_personal_promedio_por_dia: p.dailyPersonal,
+      mes_en_curso: month(FF.monthKey(d.today)),
+      meses_anteriores: [month(d.ym), month(FF.prevMonth(d.ym))],
+      fijos_proximas_4_semanas: p.upcoming.map((u) => ({ fecha: u.date, que: tagOf[FF.counterpartyKey(u.name)] ? FF.titleCase(u.name) : (u.amount > 0 ? 'ingreso fijo de un cliente' : 'pago fijo'), monto: u.amount })),
+      proyeccion_4_semanas: p.points.map((q) => ({ semana: q.week, desde: q.start, hasta: q.end, saldo_probable: Math.round(q.p50), rango: [Math.round(q.p10), Math.round(q.p90)] })),
+      alerta: p.alert ? `podría bajar del mínimo la semana del ${FF.shortDate(p.alert.start)}, llegando a ${fmt(p.alert.amount)}` : 'sin alerta',
+    };
+  }
+  function askCard() {
+    if (!AI.enabled) return '';
+    const ideas = ['¿Cuánto gasté en supermercado el mes pasado?', '¿Me alcanza para pagar el arriendo?', '¿Cómo le fue a mi negocio?'];
+    return `<div class="card">
+      <div class="card-header">Pregúntale a FinFlow</div>
+      <div class="card-body">
+        <form class="input-group mb-2" data-form="ask">
+          <input class="form-control" id="ask-q" maxlength="300" required placeholder="Escribe tu pregunta" aria-label="Pregunta" value="${esc(AI.q)}" ${AI.busy ? 'disabled' : ''}>
+          <button class="btn btn-primary" type="submit" ${AI.busy ? 'disabled' : ''}>${AI.busy ? 'Pensando…' : 'Preguntar'}</button>
+        </form>
+        ${AI.answer ? `<p class="mb-2" style="white-space:pre-line">${esc(AI.answer)}</p>` : ''}
+        ${AI.error ? `<div class="alert alert-danger py-2 small mb-2">${esc(AI.error)}</div>` : ''}
+        ${!AI.answer && !AI.busy ? `<div class="d-flex flex-wrap gap-1 mb-2">${ideas.map((q) => `<button class="btn btn-sm btn-outline-secondary" data-act="ask-idea" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>` : ''}
+        <div class="form-text mt-0">Responde con un resumen de tus números. No recibe nombres de personas ni RUT.</div>
+      </div>
+    </div>`;
+  }
+  async function ask(q) {
+    q = String(q || '').trim(); if (!q || AI.busy) return;
+    Object.assign(AI, { busy: true, q, answer: '', error: '' }); render();
+    try { AI.answer = (await api('/api/asistente', { method: 'POST', body: JSON.stringify({ pregunta: q, resumen: aiSummary() }) })).respuesta; } catch (e) { AI.error = e.message; }
+    AI.busy = false; render();
+  }
+
+  // "Puedes gastar $X por día": saldo de hoy + ingresos fijos que vienen − pagos fijos que vienen − tu mínimo,
+  // repartido en los 28 días de la proyección.
+  function dailyPlan(d) {
+    const up = d.proj.upcoming;
+    const income = up.filter((u) => u.amount > 0).reduce((s, u) => s + u.amount, 0);
+    const fixed = up.filter((u) => u.amount < 0).reduce((s, u) => s - u.amount, 0);
+    const free = d.total + income - fixed - d.proj.minimum;
+    return { income, fixed, free, perDay: Math.max(0, Math.floor(free / 28 / 100) * 100) };
+  }
+  // Gastos del mes por categoría (la misma que explica cada movimiento). Deja las 6 más grandes y junta el resto.
+  function spendByTag(txs, ym) {
+    const by = {};
+    for (const t of txs) {
+      if (t.internal || t.amount >= 0 || FF.monthKey(t.date) !== ym) continue;
+      const k = t.tag || 'otros';
+      by[k] = by[k] || { name: k, total: 0, negocio: 0 };
+      by[k].total -= t.amount; if (t.scope === 'negocio') by[k].negocio -= t.amount;
+    }
+    const otros = by.otros; delete by.otros;
+    const list = Object.values(by).sort((x, y) => y.total - x.total);
+    const rest = list.splice(6).concat(otros || []);
+    if (rest.length) list.push({ name: 'otros', total: rest.reduce((s, r) => s + r.total, 0), negocio: rest.reduce((s, r) => s + r.negocio, 0) });
+    return list;
+  }
+
   function tabInicio() {
     const d = D; const p = d.proj; const a = p.alert; const m = d.month;
+    const plan = dailyPlan(d); const tags = spendByTag(d.txs, d.ym);
+    const tagTotal = tags.reduce((s, t) => s + t.total, 0) || 1;
+    const tagMax = Math.max(1, ...tags.map((t) => t.total));
+    const planRow = (label, value, strong) => `<tr><td class="${strong ? 'fw-semibold' : 'text-body-secondary'}">${label}</td><td class="text-end num ${strong ? 'fw-semibold' : ''}">${value}</td></tr>`;
     const tot = m.ingreso_negocio + m.gasto_operacional + m.ingreso_personal + m.gasto_personal || 1;
+    const pct = (v) => ((v / tot) * 100).toFixed(1);
     const w4 = p.points[3];
     return `
-      <div class="topline"><div><p class="muted">Hola, ${esc(firstName())}</p><h1>Inicio</h1></div><span class="xs faint">Datos al ${FF.shortDate(d.today)}${S.sample ? ' · ejemplo ficticio' : ''}</span></div>
-      <div class="grid-2">
-        <div class="col">
-          <section class="card stack">
-            <span class="eyebrow">${d.bals.length === 1 ? 'Saldo en tu cuenta' : `Saldo en tus ${d.bals.length} cuentas`}</span>
-            <span class="balance num" data-count="${d.total}">${fmt(d.total)}</span>
-            ${p.enough ? `<span class="small muted">En 4 semanas, rango probable: ${fmt(w4.p10)} a ${fmt(w4.p90)}</span>` : ''}
-            <div class="acc-pills">${d.bals.map((b) => `<span class="acc-pill num">${esc(b.name)} · ${fmt(b.balance)}</span>`).join('')}</div>
-          </section>
-          ${a ? `<section class="alert">${I.warn}<div class="stack" style="gap:6px"><strong>Semana del ${FF.shortDate(a.start)}: podrías bajar de tu mínimo</strong>
-              <p>Tu saldo podría llegar a ${fmt(a.amount)} (tu mínimo es ${fmt(p.minimum)}). Con eso te alcanza para ${a.daysCovered} días de gastos personales.</p>
-              <div class="row wrap" style="gap:16px"><button class="link-btn" data-act="tab" data-tab="proyeccion">Ver qué puedo hacer</button><button class="link-btn" data-act="toast">Simular aviso en el celular</button></div></div></section>`
-            : `<section class="ok-box">${p.enough ? 'Tu saldo se mantiene sobre tu mínimo las próximas 4 semanas.' : 'Necesitamos al menos 3 meses de movimientos para proyectar con el modelo.'}</section>`}
-          <section class="card stack">
-            <div class="row between"><h3>Proyección · 4 semanas</h3><button class="link-btn" data-act="tab" data-tab="proyeccion">Ver detalle</button></div>
-            <div class="chart-wrap">${chart(d, { w: 600, h: 200, compact: true })}</div>
-            <p class="small muted">${esc(phrase(p))}</p>
-          </section>
+      ${pageTitle('Inicio', `Hola, ${esc(firstName())}`, `<span class="small text-body-secondary">Datos al ${FF.shortDate(d.today)}${S.sample ? ' · ejemplo ficticio' : ''}</span>`)}
+      <div class="row g-3">
+        <div class="col-lg-7 d-flex flex-column gap-3">
+          <div class="card"><div class="card-body">
+            <div class="small text-body-secondary">${d.bals.length === 1 ? 'Saldo en tu cuenta' : `Saldo en tus ${d.bals.length} cuentas`}</div>
+            <div class="display-5 fw-bold num" data-count="${d.total}">${fmt(d.total)}</div>
+            ${p.enough ? `<div class="small text-body-secondary mb-2">En 4 semanas, rango probable: ${fmt(w4.p10)} a ${fmt(w4.p90)}</div>` : ''}
+            <div class="d-flex flex-wrap gap-2">${d.bals.map((b) => `<span class="badge bg-body-secondary text-body border fw-normal num">${esc(b.name)} · ${fmt(b.balance)}</span>`).join('')}</div>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <div class="small text-body-secondary">Para las próximas 4 semanas</div>
+            ${plan.free > 0
+              ? `<div class="fs-2 fw-bold">Puedes gastar <span class="num text-primary">${fmt(plan.perDay)}</span> por día</div>`
+              : `<div class="fs-4 fw-bold">Hoy no te queda margen para gastos extra</div>`}
+            <table class="table table-sm small mt-2 mb-2"><tbody>
+              ${planRow('Saldo de hoy', fmt(d.total))}
+              ${planRow('Ingresos fijos que vienen', '+' + fmt(plan.income))}
+              ${planRow('Pagos fijos que vienen', '−' + fmt(plan.fixed))}
+              ${planRow('Tu mínimo', '−' + fmt(p.minimum))}
+              ${planRow(plan.free > 0 ? 'Libre para 28 días' : 'Te falta', fmt(plan.free), true)}
+            </tbody></table>
+            <div class="form-text mt-0">Tu gasto personal promedio es ${fmt(p.dailyPersonal)} al día. Si un cliente se atrasa en pagar, este número baja.</div>
+          </div></div>
+          ${a ? `<div class="alert alert-warning mb-0" role="alert">
+              <h2 class="alert-heading h6 d-flex align-items-center gap-2"><span class="icon">${I.warn}</span>Semana del ${FF.shortDate(a.start)}: podrías bajar de tu mínimo</h2>
+              <p class="mb-2">Tu saldo podría llegar a ${fmt(a.amount)} (tu mínimo es ${fmt(p.minimum)}). Con eso te alcanza para ${a.daysCovered} días de gastos personales.</p>
+              <div class="d-flex flex-wrap gap-2"><button class="btn btn-sm btn-warning" data-act="tab" data-tab="proyeccion">Ver qué puedo hacer</button></div></div>`
+            : `<div class="alert alert-success mb-0">${p.enough ? 'Tu saldo se mantiene sobre tu mínimo las próximas 4 semanas.' : 'Necesitamos al menos 3 meses de movimientos para proyectar con el modelo.'}</div>`}
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center"><span>Proyección · 4 semanas</span><button class="btn btn-link btn-sm p-0" data-act="tab" data-tab="proyeccion">Ver detalle</button></div>
+            <div class="card-body">
+              <div class="chart-wrap">${chart(d, { w: 600, h: 200, compact: true })}</div>
+              <p class="small text-body-secondary mt-2 mb-0">${esc(phrase(p))}</p>
+            </div>
+          </div>
         </div>
-        <div class="col">
-          <section class="card stack">
-            <span class="eyebrow">Resumen de ${FF.monthName(d.ym)}</span>
-            <ul class="summary-list">${d.smart.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>
-          </section>
-          <section class="card stack">
-            <span class="eyebrow">${FF.monthName(d.ym)} · negocio vs. personal</span>
-            <div class="split">
-              <div class="box"><span class="chip chip-negocio">${I.brief}Negocio</span><span class="v num">${fmt(m.utilidad)}</span><span class="xs muted num">+${fmt(m.ingreso_negocio)} · −${fmt(m.gasto_operacional)}</span></div>
-              <div class="box"><span class="chip chip-personal">${I.person}Personal</span><span class="v num">−${fmt(m.gasto_personal)}</span><span class="xs muted num">Ingresos ${fmt(m.ingreso_personal)}</span></div>
+        <div class="col-lg-5 d-flex flex-column gap-3">
+          ${askCard()}
+          <div class="card">
+            <div class="card-header">Resumen de ${FF.monthName(d.ym)}</div>
+            <ul class="list-group list-group-flush">${d.smart.map((s) => `<li class="list-group-item">${esc(s)}</li>`).join('')}</ul>
+          </div>
+          <div class="card">
+            <div class="card-header">${FF.monthName(d.ym)} · negocio vs. personal</div>
+            <div class="card-body">
+              <div class="row g-2 mb-3">
+                <div class="col-6"><div class="border rounded p-2 h-100"><span class="badge ${BADGE.negocio}">Negocio</span><div class="fs-5 fw-bold num mt-1">${fmt(m.utilidad)}</div><div class="small text-body-secondary num">+${fmt(m.ingreso_negocio)} · −${fmt(m.gasto_operacional)}</div></div></div>
+                <div class="col-6"><div class="border rounded p-2 h-100"><span class="badge ${BADGE.personal}">Personal</span><div class="fs-5 fw-bold num mt-1">−${fmt(m.gasto_personal)}</div><div class="small text-body-secondary num">Ingresos ${fmt(m.ingreso_personal)}</div></div></div>
+              </div>
+              <div class="progress-stacked" aria-hidden="true">
+                <div class="progress" style="width:${pct(m.ingreso_negocio)}%"><div class="progress-bar"></div></div>
+                <div class="progress" style="width:${pct(m.gasto_operacional)}%"><div class="progress-bar bg-primary bg-opacity-50"></div></div>
+                <div class="progress" style="width:${pct(m.ingreso_personal)}%"><div class="progress-bar bg-secondary bg-opacity-50"></div></div>
+                <div class="progress" style="width:${pct(m.gasto_personal)}%"><div class="progress-bar bg-secondary"></div></div>
+              </div>
+              ${m.internalCount ? `<p class="small text-body-secondary mt-3 mb-0"><span class="badge ${BADGE.internal}">Entre tus cuentas</span> ${fmt(m.internal)} en ${m.internalCount} ${m.internalCount === 1 ? 'traspaso' : 'traspasos'}. No cuentan como ingreso ni gasto.</p>` : ''}
             </div>
-            <div class="bar-track ${animateNext ? 'anim' : ''}" aria-hidden="true">
-              <span style="width:${(m.ingreso_negocio / tot) * 100}%;background:var(--negocio)"></span>
-              <span style="width:${(m.gasto_operacional / tot) * 100}%;background:#2f7c74"></span>
-              <span style="width:${(m.ingreso_personal / tot) * 100}%;background:#d4ccff"></span>
-              <span style="width:${(m.gasto_personal / tot) * 100}%;background:#6f63b8"></span>
+          </div>
+          ${tags.length ? `<div class="card">
+            <div class="card-header">¿En qué se fue la plata? · ${FF.monthName(d.ym)}</div>
+            <div class="card-body d-flex flex-column gap-3">
+              ${tags.map((t) => `<div>
+                <div class="d-flex justify-content-between small mb-1"><span>${esc(t.name.charAt(0).toUpperCase() + t.name.slice(1))}</span><span class="num"><strong>${fmt(t.total)}</strong> · ${Math.round((t.total / tagTotal) * 100)} %</span></div>
+                <div class="progress" style="height:8px" aria-hidden="true"><div class="progress-bar ${t.negocio * 2 > t.total ? '' : 'bg-secondary'}" style="width:${((t.total / tagMax) * 100).toFixed(1)}%"></div></div>
+              </div>`).join('')}
+              <div class="form-text mt-0">Azul: gastos del negocio. Gris: gastos personales.</div>
             </div>
-            ${m.internalCount ? `<p class="xs muted"><span class="chip chip-internal">${I.swap}Entre tus cuentas</span> ${fmt(m.internal)} en ${m.internalCount} ${m.internalCount === 1 ? 'traspaso' : 'traspasos'}. No cuentan como ingreso ni gasto.</p>` : ''}
-          </section>
-          <section class="card qr-card qr-desktop">
-            <div class="qr-box" id="qr" aria-label="Código QR para abrir FinFlow en tu celular"></div>
-            <div class="stack" style="gap:6px"><h3>Lleva FinFlow a tu celular</h3><p class="small muted">Escanéalo con la cámara. Se abre con tu sesión y puedes agregarlo a tu pantalla de inicio.</p></div>
-          </section>
+          </div>` : ''}
+          <div class="card d-none d-lg-block"><div class="card-body d-flex align-items-center gap-3">
+            <div class="qr-box border rounded bg-white" id="qr" aria-label="Código QR para abrir FinFlow en tu celular"></div>
+            <div><h2 class="h6">Lleva FinFlow a tu celular</h2><p class="small text-body-secondary mb-0">Escanéalo con la cámara. Se abre con tu sesión y puedes agregarlo a tu pantalla de inicio.</p></div>
+          </div></div>
         </div>
       </div>`;
   }
@@ -1079,123 +1075,181 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     }).slice().reverse();
   }
   function chipFor(t) {
-    if (t.internal) return `<span class="chip chip-internal">${I.swap}Entre tus cuentas</span>`;
+    if (t.internal) return `<span class="badge ${BADGE.internal}">Entre tus cuentas</span>`;
     const label = { ingreso_negocio: 'Ingreso negocio', gasto_operacional: 'Gasto operacional', ingreso_personal: 'Ingreso personal', gasto_personal: 'Gasto personal' }[t.category];
-    return `<span class="chip chip-${t.scope}">${t.scope === 'negocio' ? I.brief : I.person}${label}</span>${t.review ? '<span class="chip chip-review">¿Correcto?</span>' : ''}`;
+    return `<span class="badge ${BADGE[t.scope]}">${label}</span>${t.review ? ` <span class="badge ${BADGE.review}">¿Correcto?</span>` : ''}`;
   }
   function tabMovs() {
     const c = txCounts(); const list = visibleTxs();
     const F = [['todos', 'Todos'], ['negocio', 'Negocio'], ['personal', 'Personal'], ['revisar', 'Por revisar'], ['internas', 'Entre tus cuentas']];
     let html = ''; let cur = '';
     for (const t of list.slice(0, 160)) {
-      if (t.date !== cur) { if (cur) html += '</div>'; cur = t.date; html += `<div class="tx-group"><div class="tx-date">${FF.shortDate(t.date)}</div>`; }
-      html += `<button class="tx ${t.internal ? 'is-internal' : ''}" data-act="open-tx" data-id="${esc(t.id)}">
-        <span class="tx-desc">${esc(t.description)}</span>
-        <span class="tx-amt num ${t.amount > 0 ? 'pos' : ''}">${signed(t.amount)}</span>
-        <span class="tx-meta">${chipFor(t)}<span>${esc(t.accountName)}</span><span>· ${esc(t.internal ? t.internalReason || 'traspaso propio' : t.reason)}</span></span>
+      if (t.date !== cur) { if (cur) html += '</div>'; cur = t.date; html += `<h2 class="h6 small text-uppercase text-body-secondary mt-4 mb-2">${FF.shortDate(t.date)}</h2><div class="list-group">`; }
+      html += `<button class="list-group-item list-group-item-action ${t.internal ? 'is-internal' : ''}" data-act="open-tx" data-id="${esc(t.id)}">
+        <span class="d-flex justify-content-between gap-3"><span class="fw-semibold text-break">${esc(t.description)}</span><span class="tx-amt fw-bold num text-nowrap ${t.amount > 0 ? 'pos' : ''}">${signed(t.amount)}</span></span>
+        <span class="d-block small text-body-secondary mt-1">${chipFor(t)} ${esc(t.accountName)} · ${esc(t.internal ? t.internalReason || 'traspaso propio' : t.reason)}</span>
       </button>`;
     }
     if (cur) html += '</div>';
     return `
-      <div class="topline"><div><h1>Movimientos</h1><p class="small muted">Toca un movimiento para cambiarlo entre Negocio y Personal.</p></div><button class="btn" data-act="add-account">Importar cartola</button></div>
-      <div class="toolbar">
-        <input class="input" id="q" type="search" placeholder="Buscar por descripción o monto" aria-label="Buscar movimiento" value="${esc(S.query)}">
-        <select class="input" id="accf" aria-label="Filtrar por cuenta" style="flex:0 1 200px"><option value="todas">Todas las cuentas</option>${S.accounts.map((a) => `<option value="${a.id}" ${S.accFilter === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>
+      ${pageTitle('Movimientos', 'Toca un movimiento para cambiarlo entre Negocio y Personal.', '<button class="btn btn-outline-primary btn-sm" data-act="add-account">Importar cartola</button>')}
+      <div class="row g-2 mb-3">
+        <div class="col-md"><input class="form-control" id="q" type="search" placeholder="Buscar por descripción o monto" aria-label="Buscar movimiento" value="${esc(S.query)}"></div>
+        <div class="col-md-auto"><select class="form-select" id="accf" aria-label="Filtrar por cuenta"><option value="todas">Todas las cuentas</option>${S.accounts.map((a) => `<option value="${a.id}" ${S.accFilter === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></div>
       </div>
-      <div class="filters" role="group" aria-label="Filtrar movimientos">${F.map(([id, l]) => `<button class="filter" data-act="filter" data-f="${id}" aria-pressed="${S.filter === id}">${l} · ${c[id]}</button>`).join('')}</div>
-      <div>${html || '<p class="muted" style="padding:24px 4px">No hay movimientos con este filtro.</p>'}</div>`;
+      <div class="d-flex gap-2 overflow-auto pb-1" role="group" aria-label="Filtrar movimientos">${F.map(([id, l]) => `<button class="btn btn-sm text-nowrap ${S.filter === id ? 'btn-secondary' : 'btn-outline-secondary'}" data-act="filter" data-f="${id}" aria-pressed="${S.filter === id}">${l} <span class="badge bg-body-secondary text-body">${c[id]}</span></button>`).join('')}</div>
+      ${html || '<p class="text-body-secondary py-4">No hay movimientos con este filtro.</p>'}`;
   }
 
   function tabProy() {
     const d = D; const p = d.proj;
     return `
-      <div class="topline"><div><h1>Proyección</h1><p class="small muted">Próximas 4 semanas, desde el ${FF.shortDate(d.today)}.</p></div></div>
-      <section class="card stack">
+      ${pageTitle('Proyección', `Próximas 4 semanas, desde el ${FF.shortDate(d.today)}.`)}
+      <div class="card mb-3"><div class="card-body">
         <div class="chart-wrap">${chart(d, { w: 760, h: 300 })}</div>
-        <p class="xs faint">Pasa el cursor o toca una semana para ver el detalle. Arrastra la línea roja para cambiar tu mínimo.</p>
-        <div class="legend"><span><i style="background:var(--accent)"></i>Saldo más probable</span><span><i style="background:var(--accent);opacity:.35;height:10px"></i>Rango probable (8 de cada 10 escenarios)</span><span><i style="background:var(--danger)"></i>Tu mínimo</span></div>
-        <p style="font-size:17px;font-weight:600">${esc(phrase(p))}</p>
-        ${p.alert ? `<p class="muted">Ese saldo te alcanza para ${p.alert.daysCovered} días de gastos personales (gastas en promedio ${fmt(p.dailyPersonal)} al día).</p>` : ''}
-      </section>
-      <div class="grid-2">
-        <section class="card stack">
-          <h3>Lo que viene</h3>
-          <p class="xs faint">Movimientos que se repiten cada mes, detectados en tu historia.</p>
-          <div class="upcoming">${p.upcoming.map((u) => `<div class="up"><div><div style="font-weight:600">${esc(FF.titleCase(u.name))}</div><div class="xs faint">${FF.shortDate(u.date)} · semana ${u.week} · <span class="chip chip-${u.scope}">${u.scope === 'negocio' ? 'Negocio' : 'Personal'}</span></div></div><span class="num ${u.amount > 0 ? 'tx-amt pos' : ''}" style="font-weight:700">${signed(u.amount)}</span></div>`).join('') || '<p class="muted">Aún no detectamos movimientos fijos.</p>'}</div>
-        </section>
-        <div class="col">
-          <section class="card stack">
-            <h3>Tu mínimo</h3>
-            <p class="small muted">Te avisamos una sola vez, unos 7 días antes de bajar de este monto.</p>
-            <div class="field"><label for="minimum">Monto mínimo (CLP)</label><input class="input num" id="minimum" type="number" inputmode="numeric" min="0" step="10000" value="${S.minimum}"></div>
-          </section>
-          <section class="card stack">
-            <h3>Cómo se calcula</h3>
-            <p class="small muted">1. Detectamos tus movimientos fijos (${p.recurring.length} encontrados) y los ubicamos en su fecha.</p>
-            <p class="small muted">2. El resto de tus ingresos y gastos se proyecta por semana con suavizado exponencial (nivel y tendencia).</p>
-            <p class="small muted">3. Repetimos el cálculo en 200 escenarios con la variación real de tu historia. La banda muestra el rango donde cae la mayoría.</p>
-            <p class="xs faint">Versión prototipo del modelo. La versión final usa Holt-Winters en el servidor (statsmodels).</p>
-          </section>
+        <div class="form-text">Pasa el cursor o toca una semana para ver el detalle. Arrastra la línea roja para cambiar tu mínimo.</div>
+        <div class="legend d-flex flex-wrap gap-3 small text-body-secondary my-3">
+          <span class="d-inline-flex align-items-center gap-1"><i style="background:var(--accent)"></i>Saldo más probable</span>
+          <span class="d-inline-flex align-items-center gap-1"><i style="background:var(--accent);opacity:.35;height:10px"></i>Rango probable (8 de cada 10 escenarios)</span>
+          <span class="d-inline-flex align-items-center gap-1"><i style="background:var(--danger)"></i>Tu mínimo</span>
+        </div>
+        <p class="fw-semibold mb-1">${esc(phrase(p))}</p>
+        ${p.alert ? `<p class="text-body-secondary mb-0">Ese saldo te alcanza para ${p.alert.daysCovered} días de gastos personales (gastas en promedio ${fmt(p.dailyPersonal)} al día).</p>` : ''}
+      </div></div>
+      <div class="row g-3">
+        <div class="col-lg-7"><div class="card">
+          <div class="card-header">Lo que viene</div>
+          <ul class="list-group list-group-flush">${p.upcoming.map((u) => `<li class="list-group-item d-flex justify-content-between gap-3"><div><div class="fw-semibold">${esc(FF.titleCase(u.name))}</div><div class="small text-body-secondary">${FF.shortDate(u.date)} · semana ${u.week} · <span class="badge ${BADGE[u.scope]}">${u.scope === 'negocio' ? 'Negocio' : 'Personal'}</span></div></div><span class="tx-amt fw-bold num text-nowrap ${u.amount > 0 ? 'pos' : ''}">${signed(u.amount)}</span></li>`).join('') || '<li class="list-group-item text-body-secondary">Aún no detectamos movimientos fijos.</li>'}</ul>
+          <div class="card-footer small text-body-secondary">Movimientos que se repiten cada mes, detectados en tu historia.</div>
+        </div></div>
+        <div class="col-lg-5 d-flex flex-column gap-3">
+          <div class="card"><div class="card-body">
+            <h2 class="h6">Tu mínimo</h2>
+            <label class="form-label small" for="minimum">Monto mínimo (CLP)</label>
+            <div class="input-group"><span class="input-group-text">$</span><input class="form-control num" id="minimum" type="number" inputmode="numeric" min="0" step="10000" value="${S.minimum}"></div>
+            <div class="form-text">Te avisamos una sola vez, unos 7 días antes de bajar de este monto.</div>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <h2 class="h6">Cómo se calcula</h2>
+            <ol class="small text-body-secondary ps-3 mb-2">
+              <li>Detectamos tus movimientos fijos (${p.recurring.length} encontrados) y los ubicamos en su fecha.</li>
+              <li>El resto de tus ingresos y gastos se proyecta por semana con suavizado exponencial (nivel y tendencia).</li>
+              <li>Repetimos el cálculo en 200 escenarios con la variación real de tu historia. La banda muestra el rango donde cae la mayoría.</li>
+            </ol>
+          </div></div>
         </div>
       </div>`;
   }
 
   function tabPerfil() {
     return `
-      <div class="topline"><h1>Perfil</h1></div>
-      <div class="grid-2">
-        <div class="col">
-          <section class="card stack">
-            <h3>Tu cuenta</h3>
-            <p><span class="muted small">Titular en tus cartolas</span><br><strong>${esc(S.holder)}</strong></p>
-            <p><span class="muted small">Acceso</span><br>${esc((S.user && S.user.email) || 'Modo demo')}</p>
-          </section>
-          <section class="card stack">
-            <div class="row between"><h3>Cuentas</h3><button class="link-btn" data-act="add-account" ${S.accounts.length >= 3 ? 'disabled' : ''}>Agregar cuenta</button></div>
-            <div class="acc-list">${D.bals.map((b) => `<div class="acc"><div><strong>${esc(b.name)}</strong><div class="xs faint num">${fmt(b.balance)} · hasta el ${FF.shortDate(b.lastDate)}</div></div><button class="link-btn" data-act="remove-acc" data-id="${b.id}" aria-label="Quitar ${esc(b.name)}">Quitar</button></div>`).join('')}</div>
-            ${(FINTOC.enabled && S.accounts.some((a) => a.source === 'fintoc')) ? `<div class="row wrap"><button class="btn" data-act="fintoc-sync" ${FINTOC.busy ? 'disabled' : ''}>${FINTOC.busy ? 'Actualizando…' : 'Actualizar desde el banco'}</button></div>${FINTOC.msg ? `<p class="small muted" role="status">${esc(FINTOC.msg)}</p>` : ''}` : ''}
-            <p class="xs faint">Hasta 3 cuentas. Al volver a subir una cartola, los movimientos repetidos se ignoran.</p>
-          </section>
+      ${pageTitle('Perfil')}
+      <div class="row g-3">
+        <div class="col-lg-6 d-flex flex-column gap-3">
+          <div class="card">
+            <div class="card-header">Tu cuenta</div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><div class="small text-body-secondary">Titular en tus cartolas</div><strong>${esc(S.holder)}</strong></li>
+              <li class="list-group-item"><div class="small text-body-secondary">Acceso</div>${esc((S.user && S.user.email) || 'Sin cuenta (datos de ejemplo)')}</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center"><span>Cuentas</span><button class="btn btn-link btn-sm p-0" data-act="add-account" ${S.accounts.length >= 3 ? 'disabled' : ''}>Agregar cuenta</button></div>
+            <ul class="list-group list-group-flush">${D.bals.map((b) => `<li class="list-group-item d-flex justify-content-between align-items-center gap-3"><div><strong>${esc(b.name)}</strong><div class="small text-body-secondary num">${fmt(b.balance)} · hasta el ${FF.shortDate(b.lastDate)}</div></div><button class="btn btn-outline-danger btn-sm" data-act="remove-acc" data-id="${b.id}" aria-label="Quitar ${esc(b.name)}">Quitar</button></li>`).join('')}</ul>
+            <div class="card-body">
+              ${(FINTOC.enabled && S.accounts.some((a) => a.source === 'fintoc')) ? `<button class="btn btn-outline-primary btn-sm mb-2" data-act="fintoc-sync" ${FINTOC.busy ? 'disabled' : ''}>${FINTOC.busy ? 'Actualizando…' : 'Actualizar desde el banco'}</button>${FINTOC.msg ? `<p class="small text-body-secondary" role="status">${esc(FINTOC.msg)}</p>` : ''}` : ''}
+              <div class="form-text mt-0">Hasta 3 cuentas. Al volver a subir una cartola, los movimientos repetidos se ignoran.</div>
+            </div>
+          </div>
         </div>
-        <div class="col">
-          <section class="card stack">
-            <h3>Tus datos</h3>
-            <p class="small muted">Puedes llevarte todos tus movimientos clasificados o borrar tu cuenta con todo lo que contiene.</p>
-            <div class="row wrap"><button class="btn" data-act="export">Exportar mis datos (CSV)</button><button class="btn" data-act="ask-delete">${I.trash}Borrar mi cuenta y mis datos</button></div>
-            ${S.exportOpen ? `<textarea class="input" id="csv" readonly aria-label="Tus datos en CSV">${esc(FF.toCSV(D.txs))}</textarea><button class="btn" data-act="copy-csv">Copiar CSV</button><span class="xs faint" id="copy-msg"></span>` : ''}
-            ${S.confirmDelete ? `<div class="result err stack" style="gap:10px"><strong>¿Borrar todo?</strong><span>Se eliminan tu cuenta, tus cartolas, tus correcciones y tus alertas. No se puede deshacer.</span><div class="row wrap"><button class="btn" data-act="do-delete" style="border-color:var(--danger);color:var(--danger)">Sí, borrar todo</button><button class="btn btn-ghost" data-act="cancel-delete">Cancelar</button></div></div>` : ''}
-          </section>
-          <button class="btn btn-ghost" data-act="logout" style="align-self:flex-start">Cerrar sesión</button>
+        <div class="col-lg-6 d-flex flex-column gap-3">
+          <div class="card"><div class="card-body">
+            <h2 class="h6">Tus datos</h2>
+            <p class="small text-body-secondary">Puedes llevarte todos tus movimientos clasificados o borrar tu cuenta con todo lo que contiene.</p>
+            <div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-secondary btn-sm" data-act="export">Exportar mis datos (CSV)</button><button class="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1" data-act="ask-delete">${I.trash}Borrar mi cuenta y mis datos</button></div>
+            ${S.exportOpen ? `<textarea class="form-control font-monospace small mt-3" id="csv" rows="8" readonly aria-label="Tus datos en CSV">${esc(FF.toCSV(D.txs))}</textarea><div class="d-flex align-items-center gap-2 mt-2"><button class="btn btn-secondary btn-sm" data-act="copy-csv">Copiar CSV</button><span class="small text-body-secondary" id="copy-msg"></span></div>` : ''}
+            ${S.confirmDelete ? `<div class="alert alert-danger mt-3 mb-0"><strong>¿Borrar todo?</strong><p class="mb-2">Se eliminan tu cuenta, tus cartolas, tus correcciones y tus alertas. No se puede deshacer.</p><div class="d-flex flex-wrap gap-2"><button class="btn btn-danger btn-sm" data-act="do-delete">Sí, borrar todo</button><button class="btn btn-outline-secondary btn-sm" data-act="cancel-delete">Cancelar</button></div></div>` : ''}
+          </div></div>
+          <div><button class="btn btn-outline-secondary btn-sm" data-act="logout">Cerrar sesión</button></div>
         </div>
       </div>`;
   }
 
+  // calendario: cuánto gastaste cada día
+  // Más intenso = más gasto ese día. No cuenta los traspasos entre tus cuentas.
+  const nextMonth = (ym) => { const [y, m] = ym.split('-').map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`; };
+  const CAL_LEVEL = ['', 'bg-primary bg-opacity-25', 'bg-primary bg-opacity-50', 'bg-primary bg-opacity-75 text-white', 'bg-primary text-white'];
+  function tabCal() {
+    const ym = S.calMonth || FF.monthKey(D.today);
+    const [y, m] = ym.split('-').map(Number);
+    const days = new Date(y, m, 0).getDate();
+    const blanks = (new Date(y, m - 1, 1).getDay() + 6) % 7; // la semana parte el lunes
+    const spent = {}; let total = 0;
+    for (const t of D.txs) { if (t.amount < 0 && !t.internal && FF.monthKey(t.date) === ym) { spent[t.date] = (spent[t.date] || 0) - t.amount; total -= t.amount; } }
+    const max = Math.max(0, ...Object.values(spent));
+    const top = Object.keys(spent).find((k) => spent[k] === max);
+    let cells = '<div></div>'.repeat(blanks);
+    for (let dd = 1; dd <= days; dd++) {
+      const date = `${ym}-${String(dd).padStart(2, '0')}`; const g = spent[date] || 0;
+      const lvl = max ? Math.ceil((g * 4) / max) : 0;
+      cells += `<button class="btn cal-btn ${CAL_LEVEL[lvl]} ${date === D.today ? 'border-primary' : ''} ${date === S.calDay ? 'cal-sel' : ''}" data-act="cal-day" data-day="${date}" title="${dd} de ${FF.monthName(ym)}: ${fmt(g)} gastado"><span class="fw-semibold">${dd}</span>${g ? `<span class="cal-amt num d-none d-sm-block">${kfmt(g)}</span>` : ''}</button>`;
+    }
+    const sel = S.calDay && FF.monthKey(S.calDay) === ym ? S.calDay : null;
+    const list = sel ? D.txs.filter((t) => t.date === sel) : [];
+    return `
+      ${pageTitle('Calendario', 'Cuánto gastaste cada día. Toca un día para ver sus movimientos.')}
+      <div class="row g-3">
+        <div class="col-lg-7"><div class="card"><div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-outline-secondary btn-sm" data-act="cal-month" data-ym="${FF.prevMonth(ym)}" aria-label="Mes anterior">&larr;</button>
+            <strong class="text-capitalize">${FF.monthName(ym)} ${y}</strong>
+            <button class="btn btn-outline-secondary btn-sm" data-act="cal-month" data-ym="${nextMonth(ym)}" aria-label="Mes siguiente">&rarr;</button>
+          </div>
+          <div class="cal-grid small text-body-secondary text-center mb-1">${['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'].map((n) => `<div>${n}</div>`).join('')}</div>
+          <div class="cal-grid">${cells}</div>
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small text-body-secondary mt-3">
+            <span>${total ? `Gastado en ${FF.monthName(ym)}: <strong class="text-body num">${fmt(total)}</strong> · el día más caro fue el ${FF.shortDate(top)}` : 'Sin gastos este mes.'}</span>
+            <span class="d-inline-flex align-items-center gap-1">Menos ${CAL_LEVEL.slice(1).map((c) => `<i class="cal-key ${c}"></i>`).join('')} Más</span>
+          </div>
+        </div></div></div>
+        <div class="col-lg-5"><div class="card">
+          <div class="card-header d-flex justify-content-between"><span>${sel ? FF.shortDate(sel) : 'Detalle del día'}</span>${sel && spent[sel] ? `<span class="num">Gastado: <strong>${fmt(spent[sel])}</strong></span>` : ''}</div>
+          ${list.length ? `<div class="list-group list-group-flush">${list.map((t) => `<button class="list-group-item list-group-item-action ${t.internal ? 'is-internal' : ''}" data-act="open-tx" data-id="${esc(t.id)}">
+            <span class="d-flex justify-content-between gap-3"><span class="fw-semibold text-break">${esc(t.description)}</span><span class="tx-amt fw-bold num text-nowrap ${t.amount > 0 ? 'pos' : ''}">${signed(t.amount)}</span></span>
+            <span class="d-block small text-body-secondary mt-1">${chipFor(t)} ${esc(t.accountName)}</span></button>`).join('')}</div>`
+            : `<div class="card-body text-body-secondary">${sel ? 'Sin movimientos este día.' : 'Toca un día del calendario para ver sus movimientos.'}</div>`}
+        </div></div>
+      </div>`;
+  }
+
+  // Ventana para corregir un movimiento
   function sheet() {
     const t = D.txs.find((x) => x.id === S.sheetId); if (!t) return '';
     const key = FF.counterpartyKey(t.description);
-    return `<div class="scrim" data-act="close-sheet"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-stop>
-      <div class="row between"><h3 id="sheet-title" style="font-size:18px">${esc(t.description)}</h3><button class="link-btn" data-act="close-sheet" aria-label="Cerrar">Cerrar</button></div>
-      <div class="row between small muted"><span>${FF.shortDate(t.date)} · ${esc(t.accountName)}</span><strong class="num" style="color:var(--fg);font-size:18px">${signed(t.amount)}</strong></div>
-      <label class="check"><input type="checkbox" id="is-internal" ${t.internal ? 'checked' : ''}><span>Es un traspaso entre mis cuentas (no cuenta como ingreso ni gasto)</span></label>
-      <div class="stack" id="scope-block" style="gap:8px;${t.internal ? 'opacity:.4' : ''}">
-        <span class="eyebrow">¿De qué es este movimiento?</span>
-        <div class="seg" role="group" aria-label="Ámbito">
-          <button class="neg" data-act="pick-scope" data-scope="negocio" aria-pressed="${t.scope === 'negocio'}">${I.brief}Negocio</button>
-          <button class="per" data-act="pick-scope" data-scope="personal" aria-pressed="${t.scope === 'personal'}">${I.person}Personal</button>
+    return `<div class="modal-backdrop show"></div>
+    <div class="modal d-block scrim" tabindex="-1" data-act="close-sheet"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-stop>
+        <div class="modal-header"><h2 class="modal-title h6 text-break" id="sheet-title">${esc(t.description)}</h2><button type="button" class="btn-close" data-act="close-sheet" aria-label="Cerrar"></button></div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-3"><span class="small text-body-secondary">${FF.shortDate(t.date)} · ${esc(t.accountName)}</span><strong class="fs-5 num">${signed(t.amount)}</strong></div>
+          <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="is-internal" ${t.internal ? 'checked' : ''}><label class="form-check-label" for="is-internal">Es un traspaso entre mis cuentas (no cuenta como ingreso ni gasto)</label></div>
+          <div id="scope-block" style="${t.internal ? 'opacity:.4' : ''}">
+            <div class="form-label">¿De qué es este movimiento?</div>
+            <div class="row g-2 mb-2" role="group" aria-label="Ámbito">
+              <div class="col-6"><button class="btn btn-outline-primary w-100 ${t.scope === 'negocio' ? 'active' : ''}" data-act="pick-scope" data-scope="negocio" aria-pressed="${t.scope === 'negocio'}">Negocio</button></div>
+              <div class="col-6"><button class="btn btn-outline-primary w-100 ${t.scope === 'personal' ? 'active' : ''}" data-act="pick-scope" data-scope="personal" aria-pressed="${t.scope === 'personal'}">Personal</button></div>
+            </div>
+            <div class="form-text mb-3">Motivo actual: ${esc(t.reason)}</div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="apply-all" checked><label class="form-check-label" for="apply-all">Aplicar también a los otros movimientos de ${esc(FF.titleCase(key) || 'esta contraparte')}</label></div>
+          </div>
         </div>
-        <span class="xs faint">Motivo actual: ${esc(t.reason)}</span>
-        <label class="check"><input type="checkbox" id="apply-all" checked><span>Aplicar también a los otros movimientos de ${esc(FF.titleCase(key) || 'esta contraparte')}</span></label>
+        <div class="modal-footer"><button class="btn btn-outline-secondary" data-act="close-sheet">Cancelar</button><button class="btn btn-primary" data-act="save-tx">Guardar</button></div>
       </div>
-      <button class="btn btn-primary btn-block" data-act="save-tx">Guardar · FinFlow aprende de tu corrección</button>
     </div></div>`;
   }
 
-  function toast() {
-    const a = D && D.proj.alert;
-    return `<div class="toast" role="status"><span class="logo-mark">${I.logo}</span><div><strong>FinFlow</strong><p class="small">${a ? `La semana del ${FF.shortDate(a.start)} podrías bajar de tu mínimo. Te alcanza para ${a.daysCovered} días.` : 'Tu saldo se mantiene sobre tu mínimo este mes.'}</p></div></div>`;
-  }
 
-  // ---------- render ----------
+  // render
   let pickedScope = null;
   function render() {
     D = S.accounts.length ? derive(S) : null;
@@ -1208,6 +1262,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     animateNext = false;
   }
   function afterRender() {
+    googleButton();
     const qr = document.getElementById('qr');
     if (qr && window.QRCode) { try { new window.QRCode(qr, { text: SHARE_URL, width: 96, height: 96, colorDark: '#0c1214', colorLight: '#ffffff' }); } catch (e) { qr.textContent = 'QR'; } }
     const dz = document.getElementById('dropzone');
@@ -1219,7 +1274,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   }
   const go = (patch) => { Object.assign(S, patch); animateNext = true; render(); window.scrollTo(0, 0); };
 
-  // ---------- importar ----------
+  // importar
   function bankShort(b) { return { 'BancoEstado CuentaRUT': 'CuentaRUT', 'Otro banco': 'Otra cuenta' }[b] || b; }
   function readFile(file) {
     return new Promise((resolve, reject) => {
@@ -1231,7 +1286,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
       r.onerror = () => reject(new Error('No pudimos leer el archivo.'));
     });
   }
-  // ---------- conexión bancaria (Fintoc) ----------
+  // conexión bancaria (Fintoc)
   // Las llaves secretas y el link_token viven solo en el servidor (server.js).
   async function api(path, opts) {
     const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' }, opts));
@@ -1239,7 +1294,32 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     if (!r.ok) throw new Error(j.error || 'No pudimos comunicarnos con el servidor.');
     return j;
   }
-  fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c && c.enabled) { FINTOC.enabled = true; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
+  fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) { FINTOC.enabled = !!c.enabled; AI.enabled = !!c.asistente; GOOGLE.clientId = c.googleClientId || ''; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
+
+  // inicio de sesión con Google
+  // Google dibuja el botón y entrega un token; el servidor lo comprueba y crea la sesión.
+  function googleButton() {
+    const el = document.getElementById('google-btn');
+    if (!el || !GOOGLE.clientId || !window.google) return;
+    if (!GOOGLE.listo) { window.google.accounts.id.initialize({ client_id: GOOGLE.clientId, callback: googleLogin }); GOOGLE.listo = true; }
+    window.google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'continue_with', locale: 'es', width: Math.min(el.offsetWidth, 400) });
+  }
+  const googleLogin = (resp) => abrirSesion('/api/login/google', { credential: resp.credential });
+  window.onGoogleLibraryLoad = googleButton;
+
+  // cuentas: el servidor comprueba los datos y crea la sesión; acá solo se guarda quién entró
+  async function abrirSesion(ruta, datos) {
+    try {
+      const { usuario } = await api(ruta, { method: 'POST', body: JSON.stringify(datos) });
+      go({ view: S.accounts.length ? 'app' : 'onboard', step: 1, user: { email: usuario.email, name: usuario.nombre } });
+    } catch (e) { const el = document.getElementById('auth-error'); if (el) el.textContent = e.message; }
+  }
+  // Al abrir la página: si la sesión ya no existe en el servidor, vuelve a la portada.
+  api('/api/sesion').then((s) => {
+    if (s.usuario) { S.user = { email: s.usuario.email, name: s.usuario.nombre }; save(); }
+    else if (S.user && !S.sample) go({ view: 'landing', user: null });
+    else if (S.user) { S.user = null; save(); }
+  }).catch(() => {});
 
   async function syncFintoc() {
     const j = await api('/api/fintoc/movements');
@@ -1301,15 +1381,14 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
     }
   }
 
-  // ---------- eventos ----------
+  // eventos
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]'); if (!el) return;
     if (el.dataset.act === 'close-sheet' && e.target.closest('[data-stop]') && el.classList.contains('scrim')) return;
     const act = el.dataset.act;
     switch (act) {
-      case 'go-auth': go({ view: 'auth' }); break;
+      case 'go-auth': e.preventDefault(); go({ view: 'auth', authMode: el.dataset.modo || 'registro' }); break;
       case 'go-landing': go({ view: 'landing' }); break;
-      case 'login-google': go({ view: 'onboard', step: 1, user: { email: 'cuenta de Google (demo)' } }); break;
       case 'try-sample': loadSample(); break;
       case 'load-sample': loadSample(); break;
       case 'bank': go({ bank: el.dataset.bank, importMsg: null }); break;
@@ -1318,11 +1397,13 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
       case 'finish': go({ view: 'app', tab: 'inicio', importMsg: null }); break;
       case 'tab': go({ tab: el.dataset.tab, sheetId: null }); break;
       case 'filter': S.filter = el.dataset.f; render(); break;
+      case 'cal-month': S.calMonth = el.dataset.ym; S.calDay = null; render(); break;
+      case 'cal-day': S.calDay = el.dataset.day; render(); break;
       case 'open-tx': pickedScope = null; S.sheetId = el.dataset.id; render(); setTimeout(() => { const b = document.querySelector('.sheet button'); if (b) b.focus(); }, 0); break;
       case 'close-sheet': S.sheetId = null; render(); break;
-      case 'pick-scope': pickedScope = el.dataset.scope; document.querySelectorAll('[data-act="pick-scope"]').forEach((b) => b.setAttribute('aria-pressed', String(b === el))); break;
+      case 'pick-scope': pickedScope = el.dataset.scope; document.querySelectorAll('[data-act="pick-scope"]').forEach((b) => { b.setAttribute('aria-pressed', String(b === el)); b.classList.toggle('active', b === el); }); break;
       case 'save-tx': saveTx(); break;
-      case 'toast': S.toast = true; render(); setTimeout(() => { S.toast = false; render(); }, 4500); break;
+      case 'ask-idea': ask(el.dataset.q); break;
       case 'add-account': go({ view: 'onboard', step: 2, importMsg: null }); break;
       case 'remove-acc': S.accounts = S.accounts.filter((a) => a.id !== el.dataset.id); if (!S.accounts.length) go({ view: 'onboard', step: 2 }); else render(); break;
       case 'export': S.exportOpen = !S.exportOpen; render(); break;
@@ -1330,11 +1411,11 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
       case 'ask-delete': S.confirmDelete = true; render(); break;
       case 'cancel-delete': S.confirmDelete = false; render(); break;
       case 'do-delete': fetch('/api/fintoc/link', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {}); S = fresh(); try { localStorage.removeItem(STORE); } catch (err) { /* nada */ } render(); break;
-      case 'logout': go({ view: 'landing' }); break;
+      case 'logout': api('/api/logout', { method: 'POST' }).catch(() => {}); go({ view: 'landing', user: null }); break;
     }
   });
   function loadSample() {
-    S.holder = 'Valentina Rojas Fuentes'; S.consent = true; S.sample = true; S.user = S.user || { email: 'Modo demo' };
+    S.holder = 'Valentina Rojas Fuentes'; S.consent = true; S.sample = true;
     S.accounts = JSON.parse(JSON.stringify(SAMPLE_STATE.accounts)); S.rules = { __tx: {}, __internal: {} };
     go({ view: 'app', tab: 'inicio', importMsg: null });
   }
@@ -1351,7 +1432,12 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   }
   document.addEventListener('submit', (e) => {
     const f = e.target.dataset.form; if (!f) return; e.preventDefault();
-    if (f === 'login') go({ view: 'onboard', step: 1, user: { email: document.getElementById('email').value } });
+    if (f === 'login') {
+      const val = (id) => (document.getElementById(id) || {}).value || '';
+      if (S.authMode === 'entrar') abrirSesion('/api/login', { email: val('email'), clave: val('pass') });
+      else abrirSesion('/api/registro', { nombre: val('nombre'), email: val('email'), clave: val('pass') });
+    }
+    if (f === 'ask') ask(document.getElementById('ask-q').value);
     if (f === 'holder') { S.holder = document.getElementById('holder').value.trim(); S.consent = document.getElementById('consent').checked; go({ step: 2 }); }
   });
   document.addEventListener('input', (e) => {
