@@ -1,0 +1,104 @@
+/* Diseño: Bootstrap 5.3 tal cual. Aquí va solo lo que Bootstrap no trae. */
+:root {
+  /* Colores que usa el gráfico (SVG), tomados de Bootstrap. */
+  --bg: var(--bs-body-bg);
+  --line: var(--bs-border-color);
+  --muted: var(--bs-secondary-color);
+  --faint: var(--bs-secondary-color);
+  --accent: var(--bs-primary);
+  --warn: var(--bs-warning);
+  --danger: var(--bs-danger);
+  /* Colores de los gráficos por categoría (paleta validada para daltonismo, modo claro) */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s-ingreso: #008300; --s-otros: #9a9893;
+}
+[data-bs-theme="dark"] {
+  /* Los mismos tonos, ajustados para fondo oscuro */
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s-ingreso: #008300; --s-otros: #6b6a66;
+}
+.num { font-variant-numeric: tabular-nums; }
+.faint { color: var(--bs-secondary-color); }
+section[id] { scroll-margin-top: 70px; }
+
+/* Logo e íconos */
+.brand-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--bs-primary); display: inline-grid; place-items: center; flex-shrink: 0; }
+.brand-mark svg { width: 18px; height: 18px; }
+.btn svg, .badge svg, .nav-link svg, .icon svg { width: 1.1em; height: 1.1em; flex-shrink: 0; }
+.icon { display: inline-flex; }
+
+/* App: menú de íconos a la izquierda, panel al centro y el asistente a la derecha.
+   En el celular: barra inferior y el asistente se abre encima. */
+.rail { width: 76px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
+.rail .nav-link { color: var(--bs-secondary-color); font-size: .68rem; width: 64px; padding: .5rem .25rem; gap: 4px; border-radius: var(--bs-border-radius); }
+.rail .nav-link svg { width: 20px; height: 20px; }
+.rail .nav-link:hover, .rail .nav-link.active { color: var(--bs-body-color); background: var(--bs-secondary-bg); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .75rem; font-weight: 600; background: var(--bs-secondary-bg); }
+.app-col { min-width: 0; }
+.app-top { min-height: 52px; }
+.chat-panel { width: 360px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; display: none; }
+.chat-panel.open { display: flex; }
+@media (max-width: 1199.98px) { .chat-panel.open { position: fixed; right: 0; top: 0; z-index: 1085; width: min(400px, 100%); box-shadow: var(--bs-box-shadow-lg); } }
+.chat-msgs { overflow-y: auto; }
+.chat-yo { align-self: flex-end; max-width: 85%; background: var(--bs-primary); color: #fff; border-radius: 1rem 1rem .25rem 1rem; }
+.chat-ia { min-width: 0; }
+.chat-ia p:last-child { margin-bottom: 0; }
+.chat-logo { width: 26px; height: 26px; border-radius: 6px; background: var(--bs-primary); display: inline-grid; place-items: center; flex-shrink: 0; }
+.chat-logo svg { width: 15px; height: 15px; }
+.bottom-nav .nav-link { color: var(--bs-secondary-color); font-size: .72rem; padding: .5rem 0; }
+.bottom-nav .nav-link svg { width: 20px; height: 20px; }
+.bottom-nav .nav-link.active { color: var(--bs-primary); }
+@media (max-width: 991.98px) { .app-main { padding-bottom: 5.5rem !important; } }
+@media (min-width: 992px) { .theme-btn { right: auto !important; left: 0 !important; } }
+/* Gráficos del panel */
+.viz { display: block; width: 100%; height: auto; }
+.dot-cat { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+
+/* Avisos: en vez de fondos de color fuerte, el fondo de las tarjetas y una línea de color a la izquierda */
+.alert[class*="alert-"], .nota { --bs-alert-bg: var(--bs-tertiary-bg); --bs-alert-color: var(--bs-body-color); --bs-alert-border-color: var(--bs-border-color); --bs-alert-link-color: var(--bs-link-color); background: var(--bs-tertiary-bg); color: var(--bs-body-color); border-left: 3px solid var(--nota, var(--bs-border-color)) !important; }
+.alert-warning, .nota-warning { --nota: var(--bs-warning); }
+.alert-danger, .nota-danger { --nota: var(--bs-danger); }
+.alert-success { --nota: var(--bs-success); }
+.alert-info { --nota: var(--bs-info); }
+
+/* Subir cartola */
+.dropzone { border: 2px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: pointer; }
+.dropzone.over { border-color: var(--bs-primary); background: var(--bs-primary-bg-subtle); }
+
+/* Movimientos */
+.tx-amt.pos { color: var(--bs-success); }
+.is-internal .tx-amt { color: var(--bs-secondary-color); text-decoration: line-through; }
+/* Calendario de gastos */
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-btn { min-height: 56px; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--bs-border-color); line-height: 1.2; }
+.cal-amt { font-size: .68rem; opacity: .85; }
+.cal-sel { outline: 2px solid var(--bs-body-color); outline-offset: 1px; }
+.cal-key { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+/* Botón de modo oscuro: sobre la barra inferior en el celular */
+.theme-btn { bottom: 0; z-index: 1040; width: 42px; height: 42px; padding: 0; display: grid; place-items: center; background: var(--bs-body-bg); color: var(--bs-body-color); }
+.theme-btn:hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color); }
+.theme-btn svg { width: 20px; height: 20px; }
+@media (max-width: 991.98px) { .theme-btn { bottom: 4rem; } }
+.qr-box { width: 112px; height: 112px; flex-shrink: 0; display: grid; place-items: center; }
+.qr-box img, .qr-box canvas { width: 96px !important; height: 96px !important; }
+
+/* Gráfico de proyección */
+.chart-wrap { width: 100%; overflow-x: auto; }
+.chart-wrap svg { display: block; width: 100%; min-width: 300px; height: auto; }
+.chart-int { position: relative; }
+.ff-chart { touch-action: pan-y; }
+.ff-chart .ff-hit { cursor: crosshair; }
+.ff-min, .ff-chart.dragging { cursor: ns-resize; }
+.ff-tip { position: absolute; z-index: 5; pointer-events: none; min-width: 190px; max-width: 260px; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); padding: .5rem .75rem; font-size: .8rem; display: flex; flex-direction: column; gap: 2px; box-shadow: var(--bs-box-shadow-sm); }
+.ff-tip[hidden] { display: none; }
+.tip-warn { color: var(--bs-warning-text-emphasis); }
+.legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+.ff-chart.anim .ff-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ff-draw 1s ease .1s forwards; }
+.ff-chart.anim .ff-band { animation: ff-fade .8s ease .3s both; }
+@keyframes ff-draw { to { stroke-dashoffset: 0; } }
+@keyframes ff-fade { from { opacity: 0; } to { opacity: 1; } }
+@media print {
+  .navbar, aside, .rail, .app-top, .bottom-nav, .theme-btn, .no-print, #aviso-guardado { display: none !important; }
+  .app-main { width: 100% !important; padding: 0 !important; }
+  .card { break-inside: avoid; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

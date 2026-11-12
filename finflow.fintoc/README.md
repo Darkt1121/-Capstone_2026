@@ -4,7 +4,7 @@ Página para trabajadores independientes: junta los movimientos de tus cuentas, 
 negocio de lo personal y proyecta tu saldo a 4 semanas para avisarte antes de quedar corto.
 
 Los movimientos entran de dos formas:
-- subiendo la cartola del banco (Excel o CSV), o
+- subiendo la cartola del banco (Excel, CSV o el PDF de BancoEstado o MACHBANK, aunque tenga clave), o
 - conectando el banco con Fintoc en modo solo lectura (nunca se pide la clave del banco).
 
 ## Cómo correrlo
@@ -21,6 +21,7 @@ Opcional, en el `.env`:
 - **Entrar con Google**: `GOOGLE_CLIENT_ID` de https://console.cloud.google.com (cliente OAuth
   de tipo "Aplicación web", con origen autorizado `http://localhost:3000`).
 - **Asistente**: `GROQ_API_KEY` de https://console.groq.com.
+- **Contacto de la política de privacidad**: `CONTACT_EMAIL`.
 
 Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 
@@ -34,6 +35,16 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 - **Perfil**: cuentas conectadas, exportar los datos en CSV y borrar todo.
 - **Asistente** (opcional): preguntas en español sobre tus números. Usa la API gratuita de Groq y
   solo recibe un resumen ya calculado, sin nombres de personas ni RUT. Se activa con `GROQ_API_KEY`.
+- **Privacidad**: política de privacidad y consentimiento expreso, con la versión aceptada y la
+  fecha guardadas. Límite de intentos de contraseña.
+- **Plan**: presupuestos por categoría con aviso al 80 % y al 100 %, metas de ahorro que se
+  comparan con lo que sobra cada mes y con la proyección, y reglas propias de categorías.
+- **Reporte negocio vs. personal** por mes, descargable en PDF.
+- **Próximos cobros**: recordatorio de los pagos fijos de los próximos 7 días, con aviso si un
+  cobro fijo cambió de precio.
+- **Comercio y boletas**: cada movimiento muestra el comercio ("PAGO JUMBO LAS CONDES 123" es
+  "Jumbo") y se le puede adjuntar la boleta (PDF, JPG o PNG).
+- **Posibles repetidos**: mismo monto, ±1 día y otra cuenta; el usuario decide si juntarlos.
 - Modo claro y oscuro.
 
 ## Cómo está hecho
@@ -44,10 +55,13 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
   (el servidor comprueba con Google el token antes de aceptar). La sesión es una cookie
   `HttpOnly` y se guarda en la base de datos.
 - `db/schema.sql`: las tablas de PostgreSQL (`usuarios`, `sesiones`, `ajustes`, `cuentas`,
-  `movimientos` y `conexiones_bancarias`).
-- `public/index.html`: toda la página. Diseño con Bootstrap 5.3. La lógica (leer cartolas,
-  clasificar, detectar traspasos entre cuentas propias y proyectar) corre en el navegador. Con
-  sesión iniciada, los datos se guardan en la base de datos.
+  `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`).
+- `public/`: la página. `index.html` es la estructura, `css/finflow.css` los estilos propios y
+  `js/` el código, separado por tema: `logica.js` (leer cartolas, clasificar, detectar traspasos
+  entre cuentas propias y proyectar; no depende de la página y se puede probar en Node), y un archivo
+  por cada parte de la interfaz (`acceso.js`, `app.js`, `panel.js`, `pantallas.js`, `importar.js`,
+  `sesion.js`, `notificaciones.js`, `eventos.js`…). Diseño con Bootstrap 5.3. Con sesión iniciada,
+  los datos se guardan en la base de datos.
 
 ```
 Navegador --(widget de Fintoc)--> Fintoc
@@ -56,7 +70,7 @@ Navegador --(widget de Fintoc)--> Fintoc
 server.js --(llave secreta + link_token)--> api.fintoc.com
    | movimientos {fecha, descripción, monto}
    v
-index.html -> clasificación -> resumen, proyección y calendario
+public/js -> clasificación -> resumen, proyección y calendario
 ```
 
 ## Pendiente

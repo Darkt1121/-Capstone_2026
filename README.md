@@ -8,11 +8,14 @@ FinFlow junta los movimientos de tus cuentas, separa lo del negocio de lo person
 saldo a 4 semanas para avisarte antes de quedar corto.
 
 Los movimientos entran de dos formas:
-- subiendo la cartola del banco (Excel o CSV), o
+- subiendo la cartola del banco (Excel, CSV o el PDF de BancoEstado o MACHBANK, aunque tenga clave), o
 - conectando el banco con Fintoc en modo solo lectura (nunca se pide la clave del banco).
 
 ## Qué tiene
-- **Cuentas de usuario**: registro con correo y contraseña, o entrar con Google.
+- **Cuentas de usuario**: registro con correo y contraseña, o entrar con Google. Límite de intentos
+  de contraseña.
+- **Privacidad**: política de privacidad dentro de la página y consentimiento expreso antes de
+  guardar movimientos; queda registrada la versión aceptada y la fecha (ley N° 21.719).
 - **Inicio**: saldo total, cuánto puedes gastar por día, alerta si vas a bajar de tu mínimo,
   resumen del mes, negocio vs. personal y gastos por categoría.
 - **Movimientos**: lista con buscador y filtros. Cada movimiento dice por qué se clasificó así
@@ -23,6 +26,14 @@ Los movimientos entran de dos formas:
 - **Asistente "Pregúntale a FinFlow"**: preguntas en español sobre tus números. Solo recibe un
   resumen ya calculado, sin nombres de personas ni RUT.
 - Detección de traspasos entre cuentas propias y de pagos fijos.
+- **Plan**: presupuestos por categoría con aviso al 80 % y al 100 %, metas de ahorro que se
+  comparan con lo que sobra cada mes y con la proyección, y reglas propias de categorías.
+- **Reporte negocio vs. personal** por mes, descargable en PDF.
+- **Próximos cobros**: recordatorio de los pagos fijos de los próximos 7 días, con aviso si un
+  cobro fijo cambió de precio.
+- **Comercio y boletas**: cada movimiento muestra el comercio ("PAGO JUMBO LAS CONDES 123" es
+  "Jumbo") y se le puede adjuntar la boleta (PDF, JPG o PNG).
+- **Posibles repetidos**: mismo monto, ±1 día y otra cuenta; el usuario decide si juntarlos.
 - Modo claro y oscuro. Se adapta a computador y celular.
 
 ## Tecnologías
@@ -36,6 +47,7 @@ Los movimientos entran de dos formas:
 | Conexión bancaria | API y widget de Fintoc, en modo prueba |
 | Asistente | API de Groq |
 | Lectura de Excel | SheetJS, cargado desde CDN |
+| Lectura de PDF | pdf.js, cargado desde CDN solo al subir un PDF |
 | Clasificación | Reglas y expresiones regulares en JavaScript |
 | Proyección | Suavizado exponencial de Holt y simulaciones por remuestreo |
 | Contenedores | Docker Compose |
@@ -61,6 +73,7 @@ Opcional, en el `.env`:
 - **Entrar con Google**: `GOOGLE_CLIENT_ID` de https://console.cloud.google.com (cliente OAuth
   de tipo "Aplicación web", con origen autorizado `http://localhost:3000`).
 - **Asistente**: `GROQ_API_KEY` de https://console.groq.com.
+- **Contacto de la política de privacidad**: `CONTACT_EMAIL`.
 
 Las llaves y contraseñas van solo en el `.env`, que no se sube al repositorio.
 
@@ -96,7 +109,7 @@ Las evidencias se organizan según las fases de la asignatura:
 ## Arquitectura
 ```text
                       Navegador
-        (index.html: pantallas, cartolas, clasificación y proyección)
+        (public/: pantallas, cartolas, clasificación y proyección)
              |                    |                      |
              v                    v                      v
       Botón de Google      Widget de Fintoc         server.js (Node.js)
@@ -117,7 +130,7 @@ Las evidencias se organizan según las fases de la asignatura:
   el token con Google antes de aceptar. La sesión es una cookie `HttpOnly` guardada en la base de
   datos.
 - **Base de datos** (`db/schema.sql`): tablas `usuarios`, `sesiones`, `ajustes`, `cuentas`,
-  `movimientos` y `conexiones_bancarias`. Cada usuario ve solo sus datos, y puede entrar desde
+  `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`. Cada usuario ve solo sus datos, y puede entrar desde
   otro dispositivo y encontrar lo mismo.
 - **Conexión bancaria**: la clave del banco se escribe en el widget de Fintoc; FinFlow no la pide
   ni la guarda.
@@ -137,7 +150,22 @@ Capstone_2026/
     ├── db/
     │   └── schema.sql           tablas
     └── public/
-        └── index.html           la página
+        ├── index.html           estructura de la página
+        ├── css/finflow.css      estilos propios (además de Bootstrap)
+        └── js/
+            ├── logica.js        cálculos: cartolas, clasificación, traspasos, proyección
+            ├── ejemplo.js       cartolas de ejemplo (ficticias)
+            ├── estado.js        estado de la página e íconos
+            ├── acceso.js        portada, cuenta y configuración inicial
+            ├── app.js           menú, barra de arriba y chat
+            ├── panel.js         cálculos y gráficos del panel
+            ├── graficos.js      gráfico de la proyección
+            ├── notificaciones.js
+            ├── pantallas.js     movimientos, plan, reporte, perfil, calendario
+            ├── importar.js      cartolas (CSV, Excel, PDF) y Fintoc
+            ├── sesion.js        Google, cuentas y guardado en el servidor
+            ├── eventos.js       botones y formularios
+            └── tema.js, tema-boton.js   modo claro y oscuro
 ```
 
 ## Estado actual y pendientes
@@ -147,3 +175,5 @@ Capstone_2026/
 - La alerta de saldo necesita al menos 3 meses de movimientos.
 - Se admiten hasta 3 cuentas, y el importador no cubre todos los formatos de cartola.
 - Faltan las pruebas automáticas y el Dockerfile de la página.
+- Antes de un lanzamiento con usuarios reales: HTTPS, recuperación de contraseña, respaldos de la
+  base de datos y la revisión de la política de privacidad por un abogado.
