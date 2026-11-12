@@ -153,23 +153,30 @@ Capstone_2026/
         ├── index.html           estructura de la página
         ├── css/finflow.css      estilos propios (además de Bootstrap)
         └── js/
-            ├── logica.js        cálculos: cartolas, clasificación, traspasos, proyección
-            ├── ejemplo.js       cartolas de ejemplo (ficticias)
-            ├── estado.js        estado de la página e íconos
-            ├── acceso.js        portada, cuenta y configuración inicial
-            ├── app.js           menú, barra de arriba y chat
-            ├── panel.js         cálculos y gráficos del panel
-            ├── graficos.js      gráfico de la proyección
-            ├── notificaciones.js
-            ├── pantallas.js     movimientos, plan, reporte, perfil, calendario
-            ├── importar.js      cartolas (CSV, Excel, PDF) y Fintoc
-            ├── sesion.js        Google, cuentas y guardado en el servidor
-            ├── eventos.js       botones y formularios
+            ├── main.js          punto de entrada: carga los módulos y arranca la página
+            ├── logica/
+            │   ├── logica.js    cálculos: cartolas, clasificación, traspasos, proyección,
+            │   │                presupuestos y metas (también se usa en Node para las pruebas)
+            │   └── ejemplo.js   cartolas de ejemplo (ficticias)
+            ├── app/
+            │   ├── estado.js    estado de la página, íconos y ayudas
+            │   ├── marco.js     menú, barra de arriba y chat del asistente
+            │   ├── render.js    dibuja la pantalla que corresponde
+            │   ├── notificaciones.js
+            │   ├── importar.js  cartolas (CSV, Excel, PDF) y Fintoc
+            │   ├── sesion.js    Google, cuentas y guardado en el servidor
+            │   └── eventos.js   botones y formularios
+            ├── pantallas/       una por pantalla: portada, cuenta, configuracion, inicio,
+            │                    movimientos, proyeccion, plan, reporte, perfil, calendario,
+            │                    detalle (un movimiento) y comunes (piezas compartidas)
+            ├── graficos/
+            │   ├── proyeccion.js  gráfico de la proyección
+            │   └── panel.js       gráficos y cálculos del panel
             └── tema.js, tema-boton.js   modo claro y oscuro
 ```
 
 ## Estado actual y pendientes
-- La clasificación usa reglas. El modelo supervisado está pendiente.
+- La clasificación usa reglas fijas, reglas propias del usuario y sus correcciones.
 - La conexión bancaria funciona con las llaves de prueba de Fintoc. Las de producción requieren
   la aprobación de Fintoc.
 - La alerta de saldo necesita al menos 3 meses de movimientos.

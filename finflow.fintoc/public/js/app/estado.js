@@ -1,12 +1,13 @@
 /* Íconos, ayudas, estado de la página (S) y datos calculados (D). */
-'use strict';
+import { guardarEnServidor } from './sesion.js';
+import { chart } from '../graficos/proyeccion.js';
 
-const $root = document.getElementById('root');
-const STORE = 'finflow-proto-v1';
-const SHARE_URL = window.FINFLOW_URL || location.href;
+export const $root = document.getElementById('root');
+export const STORE = 'finflow-proto-v1';
+export const SHARE_URL = window.FINFLOW_URL || location.href;
 
 // iconos (trazo)
-const I = {
+export const I = {
   logo: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 3 7-8"/></svg>',
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
@@ -25,22 +26,21 @@ const I = {
   bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>',
 };
 
-const fmt = FF.fmt;
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const signed = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(n);
-const kfmt = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toLocaleString('es-CL', { maximumFractionDigits: 1 }) + ' M' : '$' + Math.round(n / 1000) + ' mil');
+export const fmt = FF.fmt;
+export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const signed = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(n);
+export const kfmt = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toLocaleString('es-CL', { maximumFractionDigits: 1 }) + ' M' : '$' + Math.round(n / 1000) + ' mil');
 
 // estado
-const FINTOC = { enabled: false, busy: false, msg: null };
-const GOOGLE = { clientId: '', listo: false };
-const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], reglas: [], presupuestos: [], metas: [], boletas: [], chatOpen: null, periodo: 90, notifOpen: false, notifs: [], notifBorradas: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false });
-let S = fresh();
+export const FINTOC = { enabled: false, busy: false, msg: null };
+export const GOOGLE = { clientId: '', listo: false };
+export const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], reglas: [], presupuestos: [], metas: [], boletas: [], chatOpen: null, periodo: 90, notifOpen: false, notifs: [], notifBorradas: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false });
+export let S = fresh();
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.accounts) S = Object.assign(fresh(), saved, { sheetId: null, confirmDelete: false, exportOpen: false, importMsg: null, notifOpen: false }); } catch (e) { /* sin almacenamiento */ }
-function save() { try { const { sheetId, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } guardarEnServidor(); }
+export function save() { try { const { sheetId, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } guardarEnServidor(); }
 
 // datos derivados
-let D = null;
-function derive(state) {
+export function derive(state) {
   if (!state.accounts.length) return null;
   const txs = FF.buildTransactions(state.accounts, state.holder, state.rules, state.reglas);
   const bals = FF.balances(state.accounts);
@@ -53,7 +53,7 @@ function derive(state) {
   const cats = Object.keys(porTag).filter((k) => k !== 'otros').sort((a, b) => porTag[b] - porTag[a]).slice(0, 5);
   return { txs, bals, total, today, proj, ym, cats, month: FF.monthSummary(txs, ym), smart: FF.smartSummary(txs, ym, proj) };
 }
-const SAMPLE_STATE = (() => {
+export const SAMPLE_STATE = (() => {
   const st = fresh(); st.holder = 'Valentina Rojas Fuentes';
   st.accounts = [
     { id: 'rut', name: 'CuentaRUT', bank: 'BancoEstado CuentaRUT', rows: FF.parseStatement(window.SAMPLE_RUT).rows },
@@ -61,4 +61,14 @@ const SAMPLE_STATE = (() => {
   ];
   return st;
 })();
-const SAMPLE = derive(SAMPLE_STATE);
+export const SAMPLE = derive(SAMPLE_STATE);
+
+// piezas que se repiten
+export const brand = () => `<span class="d-inline-flex align-items-center gap-2 fw-bold"><span class="brand-mark">${I.logo}</span>FinFlow</span>`;
+export const BADGE = { negocio: 'text-bg-primary', personal: 'text-bg-secondary', internal: 'bg-body-secondary text-body border', review: 'text-bg-warning' };
+
+// Marco de las pantallas de acceso y de configuración inicial.
+export const panel = (body) => `<div class="container py-4 py-md-5"><div class="row justify-content-center"><div class="col-md-8 col-lg-5">${body}</div></div></div>`;
+
+// Vuelve al estado inicial (al cerrar sesión o salir del ejemplo).
+export function reiniciarEstado() { S = fresh(); }

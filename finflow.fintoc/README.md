@@ -57,10 +57,12 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 - `db/schema.sql`: las tablas de PostgreSQL (`usuarios`, `sesiones`, `ajustes`, `cuentas`,
   `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`).
 - `public/`: la página. `index.html` es la estructura, `css/finflow.css` los estilos propios y
-  `js/` el código, separado por tema: `logica.js` (leer cartolas, clasificar, detectar traspasos
-  entre cuentas propias y proyectar; no depende de la página y se puede probar en Node), y un archivo
-  por cada parte de la interfaz (`acceso.js`, `app.js`, `panel.js`, `pantallas.js`, `importar.js`,
-  `sesion.js`, `notificaciones.js`, `eventos.js`…). Diseño con Bootstrap 5.3. Con sesión iniciada,
+  `js/` el código en módulos (`import`/`export`), que `js/main.js` carga y arranca:
+  - `logica/logica.js`: leer cartolas, clasificar, detectar traspasos entre cuentas propias y
+    proyectar. No depende de la página y se puede probar en Node.
+  - `app/`: estado, menú y chat, notificaciones, importar cartolas y Fintoc, sesión y eventos.
+  - `pantallas/`: un archivo por pantalla.
+  - `graficos/`: los gráficos SVG. Diseño con Bootstrap 5.3. Con sesión iniciada,
   los datos se guardan en la base de datos.
 
 ```

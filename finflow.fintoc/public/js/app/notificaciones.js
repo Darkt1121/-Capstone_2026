@@ -1,10 +1,14 @@
 /* Notificaciones: avisos, historial, campana y bloqueo del modo de ejemplo. */
-'use strict';
+import { I, fmt, esc, S } from './estado.js';
+import { api } from './importar.js';
+import { D, render } from './render.js';
+import { setAnimateNext } from '../graficos/proyeccion.js';
+import { hoyReal } from '../pantallas/comunes.js';
 
 // Notificaciones. notificaciones() calcula los avisos de ahora; cada uno tiene una "clave" para no
 // repetirlo. revisarNotificaciones() compara con el historial (S.notifs) y avisa solo de los nuevos.
-const ACCION_NOTIF = { antiguedad: ['add-account', '', 'Subir cartola'], proyeccion: ['tab', 'proyeccion', 'Ver proyección'], presupuesto: ['tab', 'plan', 'Ver presupuestos'], precio: ['tab', 'proyeccion', 'Ver pagos fijos'], cobro: ['tab', 'proyeccion', 'Ver pagos fijos'], repetidos: ['ver-revisar', '', 'Revisar'] };
-function notificaciones() {
+export const ACCION_NOTIF = { antiguedad: ['add-account', '', 'Subir cartola'], proyeccion: ['tab', 'proyeccion', 'Ver proyección'], presupuesto: ['tab', 'plan', 'Ver presupuestos'], precio: ['tab', 'proyeccion', 'Ver pagos fijos'], cobro: ['tab', 'proyeccion', 'Ver pagos fijos'], repetidos: ['ver-revisar', '', 'Revisar'] };
+export function notificaciones() {
   if (!D) return [];
   const out = [];
   if (!S.sample && FF.diffDays(D.today, hoyReal()) > 7) out.push({ clave: 'antiguedad:' + D.today, nivel: 'info', titulo: `Tus cartolas llegan hasta el ${FF.shortDate(D.today)}`, texto: 'El saldo y lo que puedes gastar son de esa fecha, no de hoy. Sube una cartola más nueva.' });
@@ -22,10 +26,10 @@ function notificaciones() {
   if (dups.length) out.push({ clave: `repetidos:${dups.length}:${dups[0].id}`, nivel: 'warning', titulo: dups.length === 1 ? 'Hay un posible movimiento repetido' : `Hay ${dups.length} posibles movimientos repetidos`, texto: 'Mismo monto, en otra cuenta y en la misma fecha. Revisa si cuentan una vez.' });
   return out;
 }
-const conCuenta = () => S.user && !S.sample;
-const hace = (iso) => { const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000); return m < 1 ? 'recién' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} días`; };
-let revisando = false;
-async function revisarNotificaciones() {
+export const conCuenta = () => S.user && !S.sample;
+export const hace = (iso) => { const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000); return m < 1 ? 'recién' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} días`; };
+export let revisando = false;
+export async function revisarNotificaciones() {
   if (revisando || S.view !== 'app' || !D) return;
   const conocidas = new Set(S.notifs.map((n) => n.clave).concat(S.notifBorradas));
   const nuevas = notificaciones().filter((n) => !conocidas.has(n.clave));
@@ -36,10 +40,10 @@ async function revisarNotificaciones() {
   if (conCuenta()) api('/api/notificaciones', { method: 'POST', body: JSON.stringify({ lista: nuevas }) }).catch(() => {});
   avisar(nuevas);
   revisando = false;
-  animateNext = false; render();
+  setAnimateNext(false); render();
 }
 // Aviso en la página (abajo a la derecha) y, si el usuario dio permiso, notificación del sistema.
-function avisar(nuevas) {
+export function avisar(nuevas) {
   const titulo = nuevas.length === 1 ? nuevas[0].titulo : `Tienes ${nuevas.length} notificaciones nuevas`;
   const texto = nuevas.length === 1 ? nuevas[0].texto : nuevas.slice(0, 3).map((n) => n.titulo).join(' · ');
   const caja = document.getElementById('toasts');
@@ -56,17 +60,17 @@ function avisar(nuevas) {
     }
   } catch (e) { /* el navegador no permite notificaciones */ }
 }
-function marcarLeidas() {
+export function marcarLeidas() {
   if (!S.notifs.some((n) => !n.leida)) return;
   S.notifs.forEach((n) => { n.leida = true; });
   if (conCuenta()) api('/api/notificaciones/leidas', { method: 'PUT' }).catch(() => {});
 }
-function borrarNotif(clave) {
+export function borrarNotif(clave) {
   S.notifs = S.notifs.filter((n) => n.clave !== clave);
   if (!S.notifBorradas.includes(clave)) S.notifBorradas.push(clave);
   if (conCuenta()) api('/api/notificaciones?clave=' + encodeURIComponent(clave), { method: 'DELETE' }).catch(() => {});
 }
-function notifBoton() {
+export function notifBoton() {
   const sinLeer = S.notifs.filter((n) => !n.leida).length;
   const color = { info: 'text-bg-info', warning: 'text-bg-warning', danger: 'text-bg-danger' };
   const nombre = { info: 'Dato', warning: 'Atención', danger: 'Importante' };
@@ -86,8 +90,8 @@ function notifBoton() {
   </div>`;
 }
 // Con datos de ejemplo se puede mirar todo, pero no guardar ni cambiar nada.
-const SOLO_CON_CUENTA = new Set(['add-account', 'remove-acc', 'fintoc-connect', 'fintoc-sync', 'ask-delete', 'do-delete', 'save-tx', 'dup', 'quitar-regla', 'quitar-presupuesto', 'quitar-meta', 'aportar', 'quitar-boleta']);
-function avisoEjemplo() {
+export const SOLO_CON_CUENTA = new Set(['add-account', 'remove-acc', 'fintoc-connect', 'fintoc-sync', 'ask-delete', 'do-delete', 'save-tx', 'dup', 'quitar-regla', 'quitar-presupuesto', 'quitar-meta', 'aportar', 'quitar-boleta']);
+export function avisoEjemplo() {
   const caja = document.getElementById('toasts'); if (!caja) return;
   caja.querySelectorAll('.toast-ejemplo').forEach((t) => t.remove());
   const t = document.createElement('div');

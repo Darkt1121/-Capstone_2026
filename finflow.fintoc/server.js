@@ -459,13 +459,14 @@ const server = http.createServer(async (req, res) => {
   const send = (code, obj, type = 'application/json') => { res.writeHead(code, { 'Content-Type': type + '; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(typeof obj === 'string' ? obj : JSON.stringify(obj)); };
   try {
     if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) return send(200, fs.readFileSync(INDEX, 'utf8'), 'text/html');
-    // Estilos y scripts de la página. Solo nombres simples dentro de public/css y public/js
-    // (sin "..", sin subcarpetas), así no se puede pedir ningún otro archivo del servidor.
-    const estatico = /^\/(css)\/([a-z0-9-]+)\.css$/.exec(url.pathname) || /^\/(js)\/([a-z0-9-]+)\.js$/.exec(url.pathname);
-    if (req.method === 'GET' && estatico) {
-      const archivo = path.join(__dirname, 'public', estatico[1], estatico[2] + '.' + estatico[1]);
+    // Estilos y scripts de la página. Solo nombres simples dentro de public/css, public/js y sus
+    // carpetas conocidas (sin ".."), así no se puede pedir ningún otro archivo del servidor.
+    const css = /^\/css\/([a-z0-9-]+)\.css$/.exec(url.pathname);
+    const js = /^\/js\/(?:(app|pantallas|graficos|logica)\/)?([a-z0-9-]+)\.js$/.exec(url.pathname);
+    if (req.method === 'GET' && (css || js)) {
+      const archivo = css ? path.join(__dirname, 'public', 'css', css[1] + '.css') : path.join(__dirname, 'public', 'js', js[1] || '', js[2] + '.js');
       if (!fs.existsSync(archivo)) return send(404, { error: 'No encontrado' });
-      return send(200, fs.readFileSync(archivo, 'utf8'), estatico[1] === 'css' ? 'text/css' : 'text/javascript');
+      return send(200, fs.readFileSync(archivo, 'utf8'), css ? 'text/css' : 'text/javascript');
     }
     const handler = routes[`${req.method} ${url.pathname}`];
     if (!handler) return send(404, { error: 'No encontrado' });

@@ -1,12 +1,25 @@
 /* Estructura de la app: menú de íconos, barra de arriba y el chat "Pregúntale a FinFlow". */
-'use strict';
+import { I, fmt, esc, S, brand } from './estado.js';
+import { api } from './importar.js';
+import { notifBoton } from './notificaciones.js';
+import { D, render } from './render.js';
+import { dailyPlan, spendByTag } from '../graficos/panel.js';
+import { tabCal } from '../pantallas/calendario.js';
+import { sheet } from '../pantallas/detalle.js';
+import { tabInicio } from '../pantallas/inicio.js';
+import { tabMovs } from '../pantallas/movimientos.js';
+import { tabPerfil } from '../pantallas/perfil.js';
+import { tabPlan } from '../pantallas/plan.js';
+import { tabProy } from '../pantallas/proyeccion.js';
+import { tabReporte } from '../pantallas/reporte.js';
 
 // app
-const TABS = [['inicio', 'Inicio', I.home], ['movimientos', 'Movimientos', I.list], ['proyeccion', 'Proyección', I.chart], ['plan', 'Plan', I.target], ['calendario', 'Calendario', I.cal], ['perfil', 'Perfil', I.user]];
-const navButtons = (cls) => TABS.map(([id, label, icon]) => `<button class="nav-link d-flex align-items-center ${cls} ${S.tab === id ? 'active' : ''}" data-act="tab" data-tab="${id}" ${S.tab === id ? 'aria-current="page"' : ''}>${icon}<span>${label}</span></button>`).join('');
-const pageTitle = (title, sub, right) => `<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 border-bottom pb-3 mb-4"><div><h1 class="h2 mb-0">${title}</h1>${sub ? `<p class="small text-body-secondary mb-0">${sub}</p>` : ''}</div>${right || ''}</div>`;
+// Pestañas del menú. Es una función para que use los íconos recién cuando se dibuja.
+export const TABS = () => [['inicio', 'Inicio', I.home], ['movimientos', 'Movimientos', I.list], ['proyeccion', 'Proyección', I.chart], ['plan', 'Plan', I.target], ['calendario', 'Calendario', I.cal], ['perfil', 'Perfil', I.user]];
+export const navButtons = (cls) => TABS().map(([id, label, icon]) => `<button class="nav-link d-flex align-items-center ${cls} ${S.tab === id ? 'active' : ''}" data-act="tab" data-tab="${id}" ${S.tab === id ? 'aria-current="page"' : ''}>${icon}<span>${label}</span></button>`).join('');
+export const pageTitle = (title, sub, right) => `<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 border-bottom pb-3 mb-4"><div><h1 class="h2 mb-0">${title}</h1>${sub ? `<p class="small text-body-secondary mb-0">${sub}</p>` : ''}</div>${right || ''}</div>`;
 
-function viewApp() {
+export function viewApp() {
   if (S.chatOpen === null) S.chatOpen = window.innerWidth >= 1200;
   const body = { inicio: tabInicio, movimientos: tabMovs, proyeccion: tabProy, plan: tabPlan, reporte: tabReporte, calendario: tabCal, perfil: tabPerfil }[S.tab]();
   const titulo = { inicio: 'Panel', movimientos: 'Movimientos', proyeccion: 'Proyección', plan: 'Plan', reporte: 'Reporte', calendario: 'Calendario', perfil: 'Perfil' }[S.tab];
@@ -38,13 +51,13 @@ function viewApp() {
     ${S.sheetId ? sheet() : ''}`;
 }
 
-function firstName() { return (S.holder || (S.user && S.user.name) || '').split(' ')[0] || 'hola'; }
+export function firstName() { return (S.holder || (S.user && S.user.name) || '').split(' ')[0] || 'hola'; }
 
 // Asistente "Pregúntale a FinFlow"
-const AI = { enabled: false, busy: false, msgs: [], error: '' };
+export const AI = { enabled: false, busy: false, msgs: [], error: '' };
 // Lo que recibe el asistente: solo totales ya calculados. Los pagos fijos llevan nombre solo si son
 // comercios conocidos (Netflix, Enel...); el resto va sin nombre para no mandar personas.
-function aiSummary() {
+export function aiSummary() {
   const d = D; const p = d.proj;
   const tagOf = {}; for (const t of d.txs) if (t.tag) tagOf[FF.counterpartyKey(t.description)] = t.tag;
   const month = (ym) => {
@@ -68,10 +81,10 @@ function aiSummary() {
   };
 }
 // Texto de la respuesta: se escapa todo y solo se permiten **negritas** y saltos de línea.
-function formatoIA(texto) {
+export function formatoIA(texto) {
   return esc(texto).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').split(/\n{2,}/).map((p) => `<p class="mb-2">${p.replace(/\n/g, '<br>')}</p>`).join('');
 }
-function chatPanel() {
+export function chatPanel() {
   const ideas = ['¿Cuánto gasté en supermercado el mes pasado?', '¿Me alcanza para pagar el arriendo?', '¿Cómo voy con mis presupuestos?', '¿Llego a mi meta de ahorro?'];
   const inicio = AI.enabled
     ? `<div class="d-flex gap-2"><span class="chat-logo">${I.logo}</span><div class="chat-ia small"><p class="mb-2">Hola, ${esc(firstName())}. Pregúntame lo que quieras sobre tus números.</p>
@@ -98,7 +111,7 @@ function chatPanel() {
     </form>
   </aside>`;
 }
-async function ask(q) {
+export async function ask(q) {
   q = String(q || '').trim(); if (!q || AI.busy || !AI.enabled) return;
   const historia = AI.msgs.slice(-6);
   AI.msgs.push({ rol: 'usuario', texto: q }); AI.busy = true; AI.error = ''; render();

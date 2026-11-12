@@ -1,9 +1,12 @@
 /* Cálculos y gráficos del panel: puedes gastar por día, saldo, categorías, gasto del mes. */
-'use strict';
+import { fmt, esc, kfmt } from '../app/estado.js';
+import { D } from '../app/render.js';
+import { chartPoint } from './proyeccion.js';
+import { cap } from '../pantallas/comunes.js';
 
 // "Puedes gastar $X por día": saldo de hoy + ingresos fijos que vienen − pagos fijos que vienen − tu mínimo,
 // repartido en los 28 días de la proyección.
-function dailyPlan(d) {
+export function dailyPlan(d) {
   const up = d.proj.upcoming;
   const income = up.filter((u) => u.amount > 0).reduce((s, u) => s + u.amount, 0);
   const fixed = up.filter((u) => u.amount < 0).reduce((s, u) => s - u.amount, 0);
@@ -11,7 +14,7 @@ function dailyPlan(d) {
   return { income, fixed, free, perDay: Math.max(0, Math.floor(free / 28 / 100) * 100) };
 }
 // Gastos del mes por categoría (la misma que explica cada movimiento). Deja las 6 más grandes y junta el resto.
-function spendByTag(txs, ym) {
+export function spendByTag(txs, ym) {
   const by = {};
   for (const t of txs) {
     if (t.internal || t.amount >= 0 || FF.monthKey(t.date) !== ym) continue;
@@ -27,9 +30,9 @@ function spendByTag(txs, ym) {
 }
 
 // Colores por categoría: las 5 principales tienen color propio y el resto va a "Otros".
-const colorCat = (tag) => { const i = D.cats.indexOf(tag); return i >= 0 ? `var(--s${i + 1})` : 'var(--s-otros)'; };
-const nombreCat = (tag) => (D.cats.includes(tag) ? cap(tag) : 'Otros');
-function gastosPorCategoria(txs, desde, hasta) {
+export const colorCat = (tag) => { const i = D.cats.indexOf(tag); return i >= 0 ? `var(--s${i + 1})` : 'var(--s-otros)'; };
+export const nombreCat = (tag) => (D.cats.includes(tag) ? cap(tag) : 'Otros');
+export function gastosPorCategoria(txs, desde, hasta) {
   const by = {};
   for (const t of txs) {
     if (t.internal || t.amount >= 0 || t.date < desde || t.date > hasta) continue;
@@ -40,7 +43,7 @@ function gastosPorCategoria(txs, desde, hasta) {
   return list.sort((a, b) => (a.tag === 'otros') - (b.tag === 'otros') || b.total - a.total);
 }
 // Saldo total de cada día del período (sumando todas las cuentas).
-function serieSaldo(accounts, desde, hasta) {
+export function serieSaldo(accounts, desde, hasta) {
   const dias = FF.diffDays(desde, hasta) + 1; const total = new Array(dias).fill(0);
   for (const a of accounts) {
     if (!a.rows.length) continue;
@@ -53,7 +56,7 @@ function serieSaldo(accounts, desde, hasta) {
   return total;
 }
 // Gasto acumulado de un mes, día a día (sin traspasos propios). Hasta "hastaDia" si el mes va en curso.
-function gastoAcumulado(txs, ym, hastaDia) {
+export function gastoAcumulado(txs, ym, hastaDia) {
   const [y, m] = ym.split('-').map(Number); const dias = new Date(y, m, 0).getDate();
   const porDia = new Array(dias).fill(0);
   for (const t of txs) if (!t.internal && t.amount < 0 && FF.monthKey(t.date) === ym) porDia[Number(t.date.slice(8, 10)) - 1] -= t.amount;
@@ -61,8 +64,9 @@ function gastoAcumulado(txs, ym, hastaDia) {
 }
 
 // Gráfico de líneas con tooltip. series: [{ name, color, dash, vals: [número o null] }]
-const VIZ = {}; let vizSeq = 0;
-function lineChart({ series, n, xLabel, aria, w = 460, h = 220, zero = false, area = false, tip }) {
+export const VIZ = {};
+export let vizSeq = 0;
+export function lineChart({ series, n, xLabel, aria, w = 460, h = 220, zero = false, area = false, tip }) {
   const padL = 54, padR = 14, padT = 14, padB = 26;
   const vals = series.flatMap((s) => s.vals.filter((v) => v !== null));
   let lo = Math.min(...vals), hi = Math.max(...vals);
@@ -90,7 +94,7 @@ function lineChart({ series, n, xLabel, aria, w = 460, h = 220, zero = false, ar
     <rect class="viz-hit" data-viz="${id}" x="${padL}" y="${padT}" width="${w - padL - padR}" height="${h - padT - padB}" fill="transparent"/>
   </svg><div class="ff-tip" hidden></div></div>`;
 }
-function vizTip(svg, evt) {
+export function vizTip(svg, evt) {
   const c = VIZ[svg.dataset.viz]; if (!c) return;
   const { x } = chartPoint(svg, evt);
   const i = Math.max(0, Math.min(c.n - 1, Math.round(((x - c.x(0)) / (c.x(c.n - 1) - c.x(0) || 1)) * (c.n - 1))));
@@ -108,7 +112,7 @@ function vizTip(svg, evt) {
   tip.style.left = Math.max(8, Math.min(rect.width - tip.offsetWidth - 8, left - tip.offsetWidth / 2)) + 'px';
   tip.style.top = Math.max(0, (top / c.h) * rect.height - tip.offsetHeight - 14) + 'px';
 }
-function vizHide(svg) {
+export function vizHide(svg) {
   svg.querySelector('.viz-guide').setAttribute('visibility', 'hidden');
   svg.querySelectorAll('.viz-dot').forEach((d) => d.setAttribute('visibility', 'hidden'));
   const tip = svg.parentElement.querySelector('.ff-tip'); if (tip) tip.hidden = true;
@@ -121,7 +125,7 @@ document.addEventListener('pointermove', (e) => {
 document.addEventListener('pointerdown', (e) => { if (e.target.classList && e.target.classList.contains('viz-hit')) vizTip(e.target.ownerSVGElement, e); });
 
 // Dona de gastos: un anillo con un espacio entre categorías y el total al centro.
-function donut(items, total) {
+export function donut(items, total) {
   const R = 70, C = 2 * Math.PI * R; let off = 0;
   const segs = items.map((it) => {
     const len = (it.total / total) * C; const s = `<circle cx="90" cy="90" r="${R}" fill="none" style="stroke:${it.color}" stroke-width="18" stroke-dasharray="${Math.max(0.5, len - 2).toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 90 90)"><title>${esc(it.name)}: ${fmt(it.total)} (${Math.round((it.total / total) * 100)} %)</title></circle>`;

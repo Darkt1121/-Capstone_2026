@@ -1,9 +1,11 @@
 /* Importar cartolas (CSV, Excel, PDF con clave) y conexión con Fintoc. */
-'use strict';
+import { FINTOC, GOOGLE } from './estado.js';
+import { AI } from './marco.js';
+import { render } from './render.js';
 
 // importar
-function bankShort(b) { return { 'BancoEstado CuentaRUT': 'CuentaRUT', 'Otro banco': 'Otra cuenta' }[b] || b; }
-function readFile(file) {
+export function bankShort(b) { return { 'BancoEstado CuentaRUT': 'CuentaRUT', 'Otro banco': 'Otra cuenta' }[b] || b; }
+export function readFile(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
     if (/\.xlsx?$/i.test(file.name)) {
@@ -15,12 +17,12 @@ function readFile(file) {
 }
 // Cartolas en PDF: se leen en el navegador con pdf.js, que se descarga solo cuando hace falta.
 // La clave del archivo se usa para abrirlo y no se guarda ni se envía al servidor.
-const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
-const PDF = { file: null, error: '' };
+export const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+export const PDF = { file: null, error: '' };
 // Versión de la política de privacidad. Si el texto cambia, se cambia esta fecha y todos deben aceptar de nuevo.
-const POLITICA = '2026-11-12';
+export const POLITICA = '2026-11-12';
 document.getElementById('politica-version').textContent = POLITICA.split('-').reverse().join('/');
-async function readPdf(file, clave) {
+export async function readPdf(file, clave) {
   if (!window.pdfjsLib) {
     await new Promise((resolve, reject) => {
       const s = document.createElement('script');
@@ -49,10 +51,13 @@ async function readPdf(file, clave) {
 }
 // conexión bancaria (Fintoc)
 // Las llaves secretas y el link_token viven solo en el servidor (server.js).
-async function api(path, opts) {
+export async function api(path, opts) {
   const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' }, opts));
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || 'No pudimos comunicarnos con el servidor.');
   return j;
 }
-fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) { FINTOC.enabled = !!c.enabled; AI.enabled = !!c.asistente; GOOGLE.clientId = c.googleClientId || ''; if (c.contacto) document.getElementById('politica-contacto').textContent = ' Para consultas o para ejercer tus derechos, escribe a ' + c.contacto + '.'; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
+// Pide al servidor qué está activo (Fintoc, asistente, Google) y vuelve a dibujar.
+export function cargarConfig() {
+  fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) { FINTOC.enabled = !!c.enabled; AI.enabled = !!c.asistente; GOOGLE.clientId = c.googleClientId || ''; if (c.contacto) document.getElementById('politica-contacto').textContent = ' Para consultas o para ejercer tus derechos, escribe a ' + c.contacto + '.'; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
+}

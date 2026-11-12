@@ -1,10 +1,16 @@
 /* Gráfico de la proyección a 4 semanas: tooltip, arrastre del mínimo y números que suben. */
-'use strict';
+import { fmt, esc, signed, kfmt, S } from '../app/estado.js';
+import { avisoEjemplo } from '../app/notificaciones.js';
+import { render } from '../app/render.js';
 
 // gráfico de proyección
 // Registro de gráficos dibujados (para tooltip y arrastre del mínimo).
-const CHARTS = {}; let chartSeq = 0; let animateNext = true;
-function chart(d, opts = {}) {
+export const CHARTS = {};
+export let chartSeq = 0;
+// Si el próximo dibujo anima los números. Los otros archivos lo cambian con setAnimateNext().
+export let animateNext = true;
+export function setAnimateNext(v) { animateNext = v; }
+export function chart(d, opts = {}) {
   const p = d.proj; const W = opts.w || 640; const H = opts.h || 260;
   const padL = opts.compact ? 8 : 64, padR = opts.compact ? 16 : 28, padT = 18, padB = 30;
   const xs = [0, 1, 2, 3, 4].map((i) => padL + (i * (W - padL - padR)) / 4);
@@ -53,11 +59,11 @@ function chart(d, opts = {}) {
 }
 
 // Tooltip: semana más cercana al puntero.
-function chartPoint(svg, evt) {
+export function chartPoint(svg, evt) {
   const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
-function showTip(svg, evt) {
+export function showTip(svg, evt) {
   const c = CHARTS[svg.dataset.chart]; if (!c) return;
   const { x } = chartPoint(svg, evt);
   let i = 0; c.xs.forEach((xx, k) => { if (Math.abs(xx - x) < Math.abs(c.xs[i] - x)) i = k; });
@@ -81,19 +87,19 @@ function showTip(svg, evt) {
   tip.style.left = Math.max(8, Math.min(rect.width - tip.offsetWidth - 8, left - tip.offsetWidth / 2)) + 'px';
   tip.style.top = Math.max(0, (yv / c.H) * rect.height - tip.offsetHeight - 14) + 'px';
 }
-function hideTip(svg) {
+export function hideTip(svg) {
   if (!svg) return;
   svg.querySelector('.ff-guide').setAttribute('visibility', 'hidden');
   svg.querySelector('.ff-hover').setAttribute('visibility', 'hidden');
   const tip = svg.parentElement.querySelector('.ff-tip'); if (tip) tip.hidden = true;
 }
-let dragging = null;
-function minFromEvent(svg, evt) {
+export let dragging = null;
+export function minFromEvent(svg, evt) {
   const c = CHARTS[svg.dataset.chart]; const { y } = chartPoint(svg, evt);
   const v = c.hi - ((y - c.padT) / (c.H - c.padT - c.padB)) * (c.hi - c.lo);
   return Math.max(0, Math.round(Math.min(c.hi, Math.max(c.lo, v)) / 10000) * 10000);
 }
-function moveMin(svg, v) {
+export function moveMin(svg, v) {
   const c = CHARTS[svg.dataset.chart]; const yy = c.padT + ((c.hi - v) / (c.hi - c.lo)) * (c.H - c.padT - c.padB);
   svg.querySelectorAll('.ff-min-hit, .ff-min-line').forEach((l) => { l.setAttribute('y1', yy); l.setAttribute('y2', yy); });
   svg.querySelector('.ff-min-knob').setAttribute('cy', yy);
@@ -121,7 +127,7 @@ document.addEventListener('pointerup', () => {
 });
 
 // Números que suben al cargar.
-function countUp() {
+export function countUp() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   document.querySelectorAll('[data-count]').forEach((el) => {
     const target = Number(el.dataset.count); const t0 = performance.now(); const dur = 900;
@@ -130,7 +136,7 @@ function countUp() {
   });
 }
 
-function phrase(p) {
+export function phrase(p) {
   if (!p.enough) return 'Con menos de 3 meses de historia mostramos solo tus gastos e ingresos fijos.';
   if (p.alert) return `En ${p.alert.belowOf20} de cada 20 escenarios tu saldo baja de tu mínimo la semana del ${FF.shortDate(p.alert.start)}.`;
   return 'En los 20 de cada 20 escenarios tu saldo se mantiene sobre tu mínimo.';

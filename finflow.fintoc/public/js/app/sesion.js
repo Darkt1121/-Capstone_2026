@@ -1,39 +1,41 @@
 /* Cuentas de usuario (Google y correo) y guardado en el servidor. */
-'use strict';
+import { STORE, FINTOC, GOOGLE, S, reiniciarEstado } from './estado.js';
+import { bankShort, readFile, PDF, POLITICA, readPdf, api } from './importar.js';
+import { render, go } from './render.js';
 
 // inicio de sesión con Google
 // Google dibuja el botón y entrega un token; el servidor lo comprueba y crea la sesión.
-function googleButton() {
+export function googleButton() {
   const el = document.getElementById('google-btn');
   if (!el || !GOOGLE.clientId || !window.google) return;
   if (!GOOGLE.listo) { window.google.accounts.id.initialize({ client_id: GOOGLE.clientId, callback: googleLogin }); GOOGLE.listo = true; }
   window.google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'continue_with', locale: 'es', width: Math.min(el.offsetWidth, 400) });
 }
-const googleLogin = (resp) => abrirSesion('/api/login/google', { credential: resp.credential });
+export const googleLogin = (resp) => abrirSesion('/api/login/google', { credential: resp.credential });
 window.onGoogleLibraryLoad = googleButton;
 
 // cuentas: el servidor comprueba los datos y crea la sesión; acá solo se guarda quién entró
-async function abrirSesion(ruta, datos) {
+export async function abrirSesion(ruta, datos) {
   try {
     const { usuario } = await api(ruta, { method: 'POST', body: JSON.stringify(datos) });
     await cargarDatos(usuario);
     go({ view: S.accounts.length && S.consent ? 'app' : 'onboard', step: S.holder && S.consent ? 2 : 1 });
   } catch (e) { const el = document.getElementById('auth-error'); if (el) el.textContent = e.message; }
 }
-function salir() {
+export function salir() {
   clearTimeout(porSubir); SUBIDO.ajustes = ''; SUBIDO.cuentas = {}; SUBIDO.listas = {};
-  S = fresh(); try { localStorage.removeItem(STORE); } catch (e) { /* sin almacenamiento */ }
+  reiniciarEstado(); try { localStorage.removeItem(STORE); } catch (e) { /* sin almacenamiento */ }
   render(); window.scrollTo(0, 0);
 }
 
 // datos en el servidor
 // Con sesión iniciada, las cuentas, los movimientos y los ajustes se guardan en la base de datos.
 // SUBIDO recuerda lo último que se mandó, para subir solo lo que cambió.
-const SUBIDO = { ajustes: '', cuentas: {}, listas: {} };
-let porSubir = null;
-const LISTAS = ['reglas', 'presupuestos', 'metas'];
-const ajustesDe = (s) => JSON.stringify({ holder: s.holder, consent: s.consent, policy: POLITICA, minimum: s.minimum, rules: s.rules });
-async function cargarDatos(usuario) {
+export const SUBIDO = { ajustes: '', cuentas: {}, listas: {} };
+export let porSubir = null;
+export const LISTAS = ['reglas', 'presupuestos', 'metas'];
+export const ajustesDe = (s) => JSON.stringify({ holder: s.holder, consent: s.consent, policy: POLITICA, minimum: s.minimum, rules: s.rules });
+export async function cargarDatos(usuario) {
   const mismoUsuario = S.user && S.user.email === usuario.email;
   const d = await api('/api/datos');
   if (d.accounts.length || d.holder) {
@@ -51,7 +53,7 @@ async function cargarDatos(usuario) {
   }
   S.user = { email: usuario.email, name: usuario.nombre };
 }
-function guardarEnServidor() {
+export function guardarEnServidor() {
   if (!S.user || S.sample) return;
   clearTimeout(porSubir);
   porSubir = setTimeout(async () => {
@@ -76,13 +78,15 @@ function guardarEnServidor() {
   }, 400);
 }
 // Al abrir la página: con sesión se traen los datos del servidor; sin sesión se vuelve a la portada.
-api('/api/sesion').then(async (s) => {
-  if (!s.usuario) { if (S.user) salir(); return; }
-  await cargarDatos(s.usuario);
-  if (S.view === 'landing' || S.view === 'auth' || !S.consent) go({ view: S.accounts.length && S.consent ? 'app' : 'onboard', step: S.holder && S.consent ? 2 : 1 }); else render();
-}).catch(() => {});
+export function arrancarSesion() {
+  api('/api/sesion').then(async (s) => {
+    if (!s.usuario) { if (S.user) salir(); return; }
+    await cargarDatos(s.usuario);
+    if (S.view === 'landing' || S.view === 'auth' || !S.consent) go({ view: S.accounts.length && S.consent ? 'app' : 'onboard', step: S.holder && S.consent ? 2 : 1 }); else render();
+  }).catch(() => {});
+}
 
-async function syncFintoc() {
+export async function syncFintoc() {
   const j = await api('/api/fintoc/movements');
   const usable = j.accounts.filter((a) => a.rows.length);
   if (!usable.length) throw new Error('Tu banco no devolvió movimientos en el último año.');
@@ -100,7 +104,7 @@ async function syncFintoc() {
   }
   return `Banco conectado: ${added} movimientos nuevos${dup ? `, ${dup} repetidos ignorados` : ''}.`;
 }
-async function runFintoc(connect) {
+export async function runFintoc(connect) {
   if (FINTOC.busy) return;
   FINTOC.busy = true; FINTOC.msg = null; render();
   try {
@@ -125,7 +129,7 @@ async function runFintoc(connect) {
     FINTOC.msg = e.message; go({ importMsg: { ok: false, text: e.message } });
   }
 }
-async function importFile(file, clave) {
+export async function importFile(file, clave) {
   PDF.file = null; PDF.error = '';
   try {
     const parsed = /\.pdf$/i.test(file.name) ? FF.parsePdfStatement(await readPdf(file, clave)) : FF.parseStatement(await readFile(file));

@@ -1,5 +1,16 @@
 /* Botones, formularios y teclas. Al final dibuja la página por primera vez. */
-'use strict';
+import { S, SAMPLE_STATE } from './estado.js';
+import { PDF, api } from './importar.js';
+import { AI, ask } from './marco.js';
+import { notificaciones, conCuenta, marcarLeidas, borrarNotif, SOLO_CON_CUENTA, avisoEjemplo } from './notificaciones.js';
+import { D, render, go } from './render.js';
+import { abrirSesion, salir, runFintoc, importFile } from './sesion.js';
+import { setAnimateNext } from '../graficos/proyeccion.js';
+import { mayus } from '../pantallas/comunes.js';
+import { avisoBoleta, subirBoleta } from '../pantallas/detalle.js';
+
+// Negocio o Personal elegido en la ventana de un movimiento, antes de guardar.
+export let pickedScope = null;
 
 // eventos
 document.addEventListener('click', (e) => {
@@ -8,7 +19,7 @@ document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   if (el.dataset.act === 'close-sheet' && e.target.closest('[data-stop]') && el.classList.contains('scrim')) return;
   const act = el.dataset.act;
-  if (S.sample && SOLO_CON_CUENTA.has(act)) { e.preventDefault(); S.sheetId = null; S.confirmDelete = false; animateNext = false; render(); avisoEjemplo(); return; }
+  if (S.sample && SOLO_CON_CUENTA.has(act)) { e.preventDefault(); S.sheetId = null; S.confirmDelete = false; setAnimateNext(false); render(); avisoEjemplo(); return; }
   switch (act) {
     case 'go-auth': e.preventDefault(); document.querySelectorAll('#toasts .toast-ejemplo').forEach((t) => t.remove()); go({ view: 'auth', authMode: el.dataset.modo || 'registro', sheetId: null }); break;
     case 'go-landing': go({ view: 'landing' }); break;
@@ -29,11 +40,11 @@ document.addEventListener('click', (e) => {
     case 'pick-scope': pickedScope = el.dataset.scope; document.querySelectorAll('[data-act="pick-scope"]').forEach((b) => { b.setAttribute('aria-pressed', String(b === el)); b.classList.toggle('active', b === el); }); break;
     case 'save-tx': saveTx(); break;
     case 'ask-idea': ask(el.dataset.q); break;
-    case 'chat': S.chatOpen = !S.chatOpen; animateNext = false; render(); if (S.chatOpen) { const c = document.getElementById('ask-q'); if (c && !c.disabled) c.focus(); } break;
-    case 'notif': S.notifOpen = !S.notifOpen; if (S.notifOpen) marcarLeidas(); animateNext = false; render(); break;
-    case 'notif-abrir': el.closest('.toast') && el.closest('.toast').remove(); S.notifOpen = true; marcarLeidas(); animateNext = false; render(); break;
-    case 'notif-borrar': borrarNotif(el.dataset.clave); animateNext = false; render(); break;
-    case 'notif-borrar-todas': S.notifs.map((n) => n.clave).forEach((c) => { if (!S.notifBorradas.includes(c)) S.notifBorradas.push(c); }); S.notifs = []; if (conCuenta()) api('/api/notificaciones?todas=1', { method: 'DELETE' }).catch(() => {}); animateNext = false; render(); break;
+    case 'chat': S.chatOpen = !S.chatOpen; setAnimateNext(false); render(); if (S.chatOpen) { const c = document.getElementById('ask-q'); if (c && !c.disabled) c.focus(); } break;
+    case 'notif': S.notifOpen = !S.notifOpen; if (S.notifOpen) marcarLeidas(); setAnimateNext(false); render(); break;
+    case 'notif-abrir': el.closest('.toast') && el.closest('.toast').remove(); S.notifOpen = true; marcarLeidas(); setAnimateNext(false); render(); break;
+    case 'notif-borrar': borrarNotif(el.dataset.clave); setAnimateNext(false); render(); break;
+    case 'notif-borrar-todas': S.notifs.map((n) => n.clave).forEach((c) => { if (!S.notifBorradas.includes(c)) S.notifBorradas.push(c); }); S.notifs = []; if (conCuenta()) api('/api/notificaciones?todas=1', { method: 'DELETE' }).catch(() => {}); setAnimateNext(false); render(); break;
     case 'notif-permiso': try { Notification.requestPermission().then(() => render()); } catch (er) { /* sin permiso */ } break;
     case 'toast-cerrar': el.closest('.toast').remove(); break;
     case 'salir-ejemplo': salir(); break;
@@ -56,7 +67,7 @@ document.addEventListener('click', (e) => {
     case 'logout': api('/api/logout', { method: 'POST' }).catch(() => {}); salir(); break;
   }
 });
-function loadSample() {
+export function loadSample() {
   S.holder = 'Valentina Rojas Fuentes'; S.consent = true; S.sample = true;
   S.accounts = JSON.parse(JSON.stringify(SAMPLE_STATE.accounts)); S.rules = { __tx: {}, __internal: {} };
   S.reglas = []; S.boletas = []; S.notifs = []; S.notifBorradas = [];
@@ -64,7 +75,7 @@ function loadSample() {
   S.metas = [{ nombre: 'Fondo de emergencia', monto: 1500000, fecha: '2027-06-30', aporte: 150000, ahorrado: 300000 }];
   go({ view: 'app', tab: 'inicio', importMsg: null });
 }
-function saveTx() {
+export function saveTx() {
   const t = D.txs.find((x) => x.id === S.sheetId); if (!t) return;
   const internal = document.getElementById('is-internal').checked;
   const applyAll = document.getElementById('apply-all').checked;
@@ -127,5 +138,3 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('politica').classList.add('d-none');
   if (e.key === 'Escape' && S.chatOpen && window.innerWidth < 1200 && S.view === 'app') { S.chatOpen = false; render(); } if (e.key === 'Escape' && S.sheetId) { S.sheetId = null; render(); } });
-
-render();
