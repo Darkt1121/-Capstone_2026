@@ -1,6 +1,7 @@
 /* Configuración inicial: tu nombre, el consentimiento y subir la primera cartola. */
 import { I, esc, FINTOC, S, panel } from '../app/estado.js';
 import { PDF } from '../app/importar.js';
+import { FF } from '../logica/index.js';
 
 // configuración inicial
 export const GUIDES = {
@@ -54,6 +55,5 @@ export function viewOnboard() {
     ${msg}
     <div class="d-flex flex-wrap gap-2">
       ${S.accounts.length ? '<button class="btn btn-primary" data-act="finish">Ver mis números</button>' : ''}
-      <button class="btn btn-outline-secondary" data-act="load-sample">Usar cartolas de ejemplo</button>
     </div>`);
 }

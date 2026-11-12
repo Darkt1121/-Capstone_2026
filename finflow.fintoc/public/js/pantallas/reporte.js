@@ -3,6 +3,7 @@ import { fmt, esc, S } from '../app/estado.js';
 import { PDF } from '../app/importar.js';
 import { pageTitle } from '../app/marco.js';
 import { D } from '../app/render.js';
+import { FF } from '../logica/index.js';
 import { cap, hoyReal } from './comunes.js';
 
 // Reporte negocio vs. personal. "Descargar PDF" usa la impresión del navegador.

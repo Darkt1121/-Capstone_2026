@@ -15,10 +15,13 @@ urlpatterns = [
     re_path(r'^(?P<path>(?:css|js)/[a-z0-9/-]+\.(?:css|js))$', serve, {'document_root': settings.PUBLIC_DIR}),
 
     path('api/fintoc/config', v.config),
-    path('api/login/google', v.login_google),
     path('api/registro', v.registro),
     path('api/login', v.entrar),
     path('api/sesion', v.sesion),
+    path('api/correo/reenviar', v.reenviar_correo),
+    path('api/clave/olvide', v.olvide_clave),
+    path('api/clave/nueva', v.nueva_clave),
+    path('confirmar', v.confirmar_correo),   # el link que llega en el correo
     path('api/logout', v.salir),
     path('api/usuario', v.borrar_usuario),
     path('api/datos', v.datos),

@@ -1,4 +1,4 @@
-"""Servicios externos: Fintoc (banco), Google (inicio de sesión) y Groq (asistente).
+"""Servicios externos: Fintoc (banco) y Groq (asistente).
 
 Se usan con urllib, que viene con Python. Las llaves salen de la configuración del servidor.
 """
@@ -33,17 +33,6 @@ def _pedir(metodo, url, headers=None, body=None, timeout=30):
             return e.code, json.loads(texto) if texto else None
         except ValueError:
             return e.code, None
-
-
-# ---------- Google ----------
-
-def google_token(credencial):
-    """Pregunta a Google si el token es auténtico. Devuelve sus datos o None."""
-    try:
-        status, g = _pedir('GET', 'https://oauth2.googleapis.com/tokeninfo?id_token=' + urllib.parse.quote(credencial), timeout=10)
-    except (urllib.error.URLError, TimeoutError):
-        raise ErrorExterno(503, 'No pudimos conectar con Google. Inténtalo de nuevo.')
-    return g if status == 200 and isinstance(g, dict) else None
 
 
 # ---------- Fintoc ----------

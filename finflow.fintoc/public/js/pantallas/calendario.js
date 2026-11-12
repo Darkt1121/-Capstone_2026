@@ -2,6 +2,7 @@
 import { I, fmt, esc, signed, kfmt, S } from '../app/estado.js';
 import { pageTitle } from '../app/marco.js';
 import { D } from '../app/render.js';
+import { FF } from '../logica/index.js';
 import { tieneBoleta, txTitle } from './comunes.js';
 import { chipFor } from './movimientos.js';
 

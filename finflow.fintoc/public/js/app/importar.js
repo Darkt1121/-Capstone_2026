@@ -1,5 +1,5 @@
 /* Importar cartolas (CSV, Excel, PDF con clave) y conexión con Fintoc. */
-import { FINTOC, GOOGLE } from './estado.js';
+import { FINTOC } from './estado.js';
 import { AI } from './marco.js';
 import { render } from './render.js';
 
@@ -60,7 +60,7 @@ export async function api(path, opts) {
   if (!r.ok) throw new Error(j.error || 'No pudimos comunicarnos con el servidor.');
   return j;
 }
-// Pide al servidor qué está activo (Fintoc, asistente, Google) y vuelve a dibujar.
+// Pide al servidor qué está activo (Fintoc y el asistente) y vuelve a dibujar.
 export function cargarConfig() {
-  fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) { FINTOC.enabled = !!c.enabled; AI.enabled = !!c.asistente; GOOGLE.clientId = c.googleClientId || ''; if (c.contacto) document.getElementById('politica-contacto').textContent = ' Para consultas o para ejercer tus derechos, escribe a ' + c.contacto + '.'; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
+  fetch('/api/fintoc/config').then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) { FINTOC.enabled = !!c.enabled; AI.enabled = !!c.asistente; if (c.contacto) document.getElementById('politica-contacto').textContent = ' Para consultas o para ejercer tus derechos, escribe a ' + c.contacto + '.'; render(); } }).catch(() => { /* sin servidor: solo cartolas */ });
 }

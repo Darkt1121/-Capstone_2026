@@ -1,6 +1,7 @@
 /* Íconos, ayudas, estado de la página (S) y datos calculados (D). */
 import { guardarEnServidor } from './sesion.js';
 import { chart } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 
 export const $root = document.getElementById('root');
 export const STORE = 'finflow-proto-v1';
@@ -32,7 +33,8 @@ export const kfmt = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toLocaleString(
 
 // estado
 export const FINTOC = { enabled: false, busy: false, msg: null };
-export const GOOGLE = { clientId: '', listo: false };
+// Datos del link "crear contraseña nueva" (vienen en la dirección: /?recuperar=uid.token). No se guardan.
+export const RECUPERAR = { uid: '', token: '' };
 export const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], reglas: [], presupuestos: [], metas: [], boletas: [], chatOpen: null, periodo: 90, notifOpen: false, notifs: [], notifBorradas: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false });
 export let S = fresh();
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.accounts) S = Object.assign(fresh(), saved, { sheetId: null, confirmDelete: false, exportOpen: false, importMsg: null, notifOpen: false }); } catch (e) { /* sin almacenamiento */ }

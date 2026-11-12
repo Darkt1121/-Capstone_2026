@@ -3,14 +3,16 @@ import { I, fmt, esc, S } from './estado.js';
 import { api } from './importar.js';
 import { D, render } from './render.js';
 import { setAnimateNext } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 import { hoyReal } from '../pantallas/comunes.js';
 
 // Notificaciones. notificaciones() calcula los avisos de ahora; cada uno tiene una "clave" para no
 // repetirlo. revisarNotificaciones() compara con el historial (S.notifs) y avisa solo de los nuevos.
-export const ACCION_NOTIF = { antiguedad: ['add-account', '', 'Subir cartola'], proyeccion: ['tab', 'proyeccion', 'Ver proyección'], presupuesto: ['tab', 'plan', 'Ver presupuestos'], precio: ['tab', 'proyeccion', 'Ver pagos fijos'], cobro: ['tab', 'proyeccion', 'Ver pagos fijos'], repetidos: ['ver-revisar', '', 'Revisar'] };
+export const ACCION_NOTIF = { correo: ['reenviar-correo', '', 'Reenviar correo'], antiguedad: ['add-account', '', 'Subir cartola'], proyeccion: ['tab', 'proyeccion', 'Ver proyección'], presupuesto: ['tab', 'plan', 'Ver presupuestos'], precio: ['tab', 'proyeccion', 'Ver pagos fijos'], cobro: ['tab', 'proyeccion', 'Ver pagos fijos'], repetidos: ['ver-revisar', '', 'Revisar'] };
 export function notificaciones() {
   if (!D) return [];
   const out = [];
+  if (S.user && !S.sample && S.user.confirmado === false) out.push({ clave: 'correo:' + S.user.email, nivel: 'warning', titulo: 'Confirma tu correo', texto: `Te enviamos un link a ${S.user.email}. Ábrelo para confirmar tu cuenta (revisa también spam).` });
   if (!S.sample && FF.diffDays(D.today, hoyReal()) > 7) out.push({ clave: 'antiguedad:' + D.today, nivel: 'info', titulo: `Tus cartolas llegan hasta el ${FF.shortDate(D.today)}`, texto: 'El saldo y lo que puedes gastar son de esa fecha, no de hoy. Sube una cartola más nueva.' });
   const a = D.proj.alert;
   if (a) out.push({ clave: 'proyeccion:' + a.start, nivel: 'warning', titulo: `Semana del ${FF.shortDate(a.start)}: podrías bajar de tu mínimo`, texto: a.amount < D.proj.minimum ? `Tu saldo podría llegar a ${fmt(a.amount)} (tu mínimo es ${fmt(D.proj.minimum)}).` : `En ${a.belowOf20} de 20 escenarios tu saldo baja de tu mínimo (${fmt(D.proj.minimum)}).` });
@@ -97,6 +99,15 @@ export function avisoEjemplo() {
   const t = document.createElement('div');
   t.className = 'toast show toast-ejemplo'; t.setAttribute('role', 'status');
   t.innerHTML = '<div class="toast-header"><strong class="me-auto">Datos de ejemplo</strong><button type="button" class="btn-close" data-act="toast-cerrar" aria-label="Cerrar"></button></div><div class="toast-body"><div>Estás viendo datos de ejemplo, solo para mirar. Crea una cuenta para usar los tuyos.</div><button class="btn btn-primary btn-sm mt-2" data-act="go-auth">Crear cuenta</button></div>';
+  caja.appendChild(t); setTimeout(() => t.remove(), 7000);
+}
+
+// Aviso corto en la esquina (por ejemplo, "Te enviamos el correo de nuevo").
+export function avisoSimple(titulo, texto) {
+  const caja = document.getElementById('toasts'); if (!caja) return;
+  const t = document.createElement('div');
+  t.className = 'toast show'; t.setAttribute('role', 'status');
+  t.innerHTML = `<div class="toast-header"><strong class="me-auto">${esc(titulo)}</strong><button type="button" class="btn-close" data-act="toast-cerrar" aria-label="Cerrar"></button></div><div class="toast-body">${esc(texto)}</div>`;
   caja.appendChild(t); setTimeout(() => t.remove(), 7000);
 }
 

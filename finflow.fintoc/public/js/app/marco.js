@@ -4,6 +4,7 @@ import { api } from './importar.js';
 import { notifBoton } from './notificaciones.js';
 import { D, render } from './render.js';
 import { dailyPlan, spendByTag } from '../graficos/panel.js';
+import { FF } from '../logica/index.js';
 import { tabCal } from '../pantallas/calendario.js';
 import { sheet } from '../pantallas/detalle.js';
 import { tabInicio } from '../pantallas/inicio.js';

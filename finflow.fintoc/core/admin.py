@@ -11,7 +11,7 @@ class UsuarioAdmin(UserAdmin):
     ordering = ('email',)
     list_display = ('email', 'nombre', 'is_staff', 'date_joined')
     search_fields = ('email', 'nombre')
-    fieldsets = ((None, {'fields': ('email', 'nombre', 'password', 'google_id')}),
+    fieldsets = ((None, {'fields': ('email', 'nombre', 'password', 'correo_confirmado')}),
                  ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
                  ('Fechas', {'fields': ('last_login', 'date_joined')}))
     add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('email', 'nombre', 'password1', 'password2')}),)

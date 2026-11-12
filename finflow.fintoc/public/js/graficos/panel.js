@@ -2,6 +2,7 @@
 import { fmt, esc, kfmt } from '../app/estado.js';
 import { D } from '../app/render.js';
 import { chartPoint } from './proyeccion.js';
+import { FF } from '../logica/index.js';
 import { cap } from '../pantallas/comunes.js';
 
 // "Puedes gastar $X por día": saldo de hoy + ingresos fijos que vienen − pagos fijos que vienen − tu mínimo,

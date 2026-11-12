@@ -23,8 +23,8 @@ Para revisar los datos existe el panel de administración de Django en http://lo
 Opcional, en el `.env`:
 - **Conectar un banco**: llaves de **modo prueba** de https://app.fintoc.com (`sk_test_...` y
   `pk_test_...`). Sin llaves la página funciona igual, solo con cartolas.
-- **Entrar con Google**: `GOOGLE_CLIENT_ID` de https://console.cloud.google.com (cliente OAuth
-  de tipo "Aplicación web", con origen autorizado `http://localhost:3000`).
+- **Correos** (confirmación de cuenta y recuperar contraseña): datos SMTP de Brevo en `EMAIL_HOST`,
+  `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` y `EMAIL_FROM`. Sin ellos, los correos se ven en el registro del servidor.
 - **Asistente**: `GROQ_API_KEY` de https://console.groq.com.
 - **Contacto de la política de privacidad**: `CONTACT_EMAIL`.
 
@@ -55,18 +55,19 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 ## Cómo está hecho
 - **Servidor: Django 5.2** (Python). `config/` es la configuración y `core/` la app:
   `models.py` (tablas), `views.py` (rutas `/api`, con las mismas respuestas que usa la página) y
-  `externos.py` (Fintoc, Google y Groq). La llave secreta de Fintoc y el `link_token` se quedan en
+  `externos.py` (Fintoc y Groq) y `correos.py` (confirmación y recuperar contraseña). La llave secreta de Fintoc y el `link_token` se quedan en
   el servidor; al navegador solo llegan los movimientos ya convertidos.
-- **Cuentas**: el sistema de usuarios de Django, con correo y contraseña (hash `scrypt`) o con
-  Google (el servidor comprueba el token con Google). Sesión en cookie `HttpOnly` y protección
+- **Cuentas**: el sistema de usuarios de Django, con correo y contraseña (hash `scrypt`), confirmación
+  por correo y recuperación de contraseña con un link que vence en 1 hora. Sesión en cookie `HttpOnly` y protección
   CSRF de Django en cada cambio. Límite de 5 contraseñas malas cada 15 minutos.
 - **Base de datos**: PostgreSQL. Las tablas (`usuarios`, `ajustes`, `cuentas`, `movimientos`,
   `conexiones_bancarias`, `reglas`, `presupuestos`, `metas`, `boletas` y `notificaciones`) se
   definen como modelos de Django y se crean con migraciones.
 - `public/`: la página. `index.html` es la estructura, `css/finflow.css` los estilos propios y
   `js/` el código en módulos (`import`/`export`), que `js/main.js` carga y arranca:
-  - `logica/logica.js`: leer cartolas, clasificar, detectar traspasos entre cuentas propias y
-    proyectar. No depende de la página y se puede probar por separado.
+  - `logica/`: los cálculos, un archivo por tema (`cartolas`, `clasificacion`, `traspasos`,
+    `movimientos`, `proyeccion`, `plan`, `util`); `index.js` los junta en el objeto `FF`.
+    No dependen de la página y se pueden probar por separado.
   - `app/`: estado, menú y chat, notificaciones, importar cartolas y Fintoc, sesión y eventos.
   - `pantallas/`: un archivo por pantalla.
   - `graficos/`: los gráficos SVG. Diseño con Bootstrap 5.3. Con sesión iniciada,

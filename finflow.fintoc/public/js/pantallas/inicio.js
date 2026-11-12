@@ -4,6 +4,7 @@ import { pageTitle, firstName } from '../app/marco.js';
 import { D } from '../app/render.js';
 import { dailyPlan, gastosPorCategoria, serieSaldo, gastoAcumulado, lineChart, donut } from '../graficos/panel.js';
 import { chart, phrase } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 import { cap, remindersCard, budgetsCard } from './comunes.js';
 
 export function tabInicio() {

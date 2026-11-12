@@ -3,6 +3,7 @@ import { fmt, esc, signed, S, BADGE } from '../app/estado.js';
 import { pageTitle } from '../app/marco.js';
 import { D } from '../app/render.js';
 import { chart, phrase } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 import { cambioBadge } from './comunes.js';
 
 export function tabProy() {

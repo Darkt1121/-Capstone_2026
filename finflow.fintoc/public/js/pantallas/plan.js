@@ -2,6 +2,7 @@
 import { fmt, esc, S, BADGE } from '../app/estado.js';
 import { pageTitle } from '../app/marco.js';
 import { D } from '../app/render.js';
+import { FF } from '../logica/index.js';
 import { cap, categorias, budgetList } from './comunes.js';
 
 export function tabPlan() {

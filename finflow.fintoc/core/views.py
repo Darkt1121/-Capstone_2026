@@ -14,13 +14,17 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.core.cache import cache
 from django.db import DatabaseError, transaction
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from . import externos
+from . import correos, externos
 from .models import (Ajustes, Boleta, ConexionBancaria, Cuenta, MetaAhorro, Movimiento, Notificacion,
                      Presupuesto, Regla, Usuario)
 
@@ -109,7 +113,7 @@ def es_fecha(valor):
 
 
 def datos_usuario(u):
-    return {'usuario': {'email': u.email, 'nombre': u.nombre}}
+    return {'usuario': {'email': u.email, 'nombre': u.nombre, 'confirmado': u.correo_confirmado}}
 
 
 # ---------- la página ----------
@@ -144,26 +148,7 @@ def pagina(request):
 @ruta('GET')
 def config(request, cuerpo):
     return {'enabled': externos.fintoc_activo(), 'asistente': bool(settings.GROQ_API_KEY),
-            'googleClientId': settings.GOOGLE_CLIENT_ID, 'contacto': settings.CONTACT_EMAIL}
-
-
-@ruta('POST')
-def login_google(request, cuerpo):
-    """El navegador manda el token que le dio Google; se comprueba con Google que sea auténtico."""
-    if not settings.GOOGLE_CLIENT_ID:
-        raise Fallo(503, 'El inicio de sesión con Google no está configurado.')
-    limitar(request, 'google', 20, 15 * 60, 'Demasiados intentos. Espera unos minutos y vuelve a probar.')
-    g = externos.google_token(str(cuerpo.get('credential') or ''))
-    if not g or g.get('aud') != settings.GOOGLE_CLIENT_ID or g.get('email_verified') != 'true':
-        raise Fallo(401, 'No pudimos comprobar tu cuenta de Google.')
-    u = Usuario.objects.filter(google_id=g['sub']).first()
-    if not u:
-        email = g['email'].lower()
-        if Usuario.objects.filter(email=email).exists():
-            raise Fallo(409, 'Ya tienes una cuenta con ese correo. Entra con tu contraseña.')
-        u = Usuario.objects.create_user(email, None, nombre=(g.get('name') or email)[:80], google_id=g['sub'])
-    login(request, u, backend='django.contrib.auth.backends.ModelBackend')
-    return datos_usuario(u)
+            'contacto': settings.CONTACT_EMAIL}
 
 
 @ruta('POST')
@@ -183,7 +168,68 @@ def registro(request, cuerpo):
     limitar(request, 'registro', 5, 60 * 60, 'Ya se crearon varias cuentas desde aquí. Prueba de nuevo en una hora.')
     u = Usuario.objects.create_user(email, clave, nombre=nombre)
     login(request, u, backend='django.contrib.auth.backends.ModelBackend')
+    correos.enviar_confirmacion(request, u)   # si falla, la cuenta igual queda creada
     return datos_usuario(u)
+
+
+@ruta('POST', sesion=True)
+def reenviar_correo(request, cuerpo):
+    """Vuelve a enviar el correo de confirmación (hasta 3 veces por hora)."""
+    u = request.user
+    if u.correo_confirmado:
+        return {'ok': True, 'confirmado': True}
+    limitar(request, 'reenviar-correo', 3, 60 * 60, 'Ya te enviamos varios correos. Revisa tu bandeja de spam o prueba en una hora.')
+    if not correos.enviar_confirmacion(request, u):
+        raise Fallo(503, 'No pudimos enviar el correo. Inténtalo de nuevo en un rato.')
+    return {'ok': True, 'confirmado': False}
+
+
+@ruta('POST')
+def olvide_clave(request, cuerpo):
+    """Pide el link para crear una contraseña nueva. Responde siempre lo mismo, exista o no la cuenta,
+    para que nadie pueda usar esto para averiguar qué correos tienen cuenta."""
+    limitar(request, 'olvide-clave', 5, 60 * 60, 'Pediste varios links seguidos. Revisa tu correo (también spam) o prueba en una hora.')
+    email = texto(cuerpo.get('email'), 300).lower()
+    u = Usuario.objects.filter(email=email, is_active=True).first()
+    if u:
+        correos.enviar_recuperacion(request, u)
+    return {'ok': True}
+
+
+@ruta('POST')
+def nueva_clave(request, cuerpo):
+    """Guarda la contraseña nueva si el link es válido. Al cambiarla, Django cierra las otras sesiones
+    abiertas y el link deja de servir. La cuenta queda confirmada (el correo es suyo)."""
+    limitar(request, 'nueva-clave', 10, 60 * 60, 'Demasiados intentos. Prueba de nuevo en un rato.')
+    clave = str(cuerpo.get('clave') or '')
+    if len(clave) < 8 or len(clave) > 200:
+        raise Fallo(400, 'La contraseña debe tener al menos 8 caracteres.')
+    try:
+        uid = force_str(urlsafe_base64_decode(str(cuerpo.get('uid') or '')))
+        u = Usuario.objects.filter(pk=int(uid), is_active=True).first()
+    except (ValueError, TypeError, OverflowError):
+        u = None
+    if not u or not default_token_generator.check_token(u, str(cuerpo.get('token') or '')):
+        raise Fallo(400, 'Este link ya no sirve. Pide uno nuevo desde "¿Olvidaste tu contraseña?".')
+    u.set_password(clave)
+    u.correo_confirmado = True
+    u.save(update_fields=['password', 'correo_confirmado'])
+    login(request, u, backend='django.contrib.auth.backends.ModelBackend')
+    return datos_usuario(u)
+
+
+def confirmar_correo(request):
+    """El link del correo: si el código es válido, la cuenta queda confirmada y vuelve a la página."""
+    datos_token = correos.leer_token(str(request.GET.get('t') or ''))
+    if not datos_token:
+        return redirect('/?correo=vencido')
+    u = Usuario.objects.filter(pk=datos_token[0], email=datos_token[1]).first()
+    if not u:
+        return redirect('/?correo=vencido')
+    if not u.correo_confirmado:
+        u.correo_confirmado = True
+        u.save(update_fields=['correo_confirmado'])
+    return redirect('/?correo=confirmado')
 
 
 MAX_INTENTOS = 5
@@ -208,7 +254,7 @@ def entrar(request, cuerpo):
 @ruta('GET')
 def sesion(request, cuerpo):
     u = request.user
-    return {'usuario': {'email': u.email, 'nombre': u.nombre} if u.is_authenticated else None}
+    return datos_usuario(u) if u.is_authenticated else {'usuario': None}
 
 
 @ruta('POST')

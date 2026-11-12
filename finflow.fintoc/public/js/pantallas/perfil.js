@@ -2,6 +2,7 @@
 import { I, fmt, esc, FINTOC, S } from '../app/estado.js';
 import { pageTitle } from '../app/marco.js';
 import { D } from '../app/render.js';
+import { FF } from '../logica/index.js';
 
 export function tabPerfil() {
   return `
@@ -12,7 +13,8 @@ export function tabPerfil() {
           <div class="card-header">Tu cuenta</div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item"><div class="small text-body-secondary">Titular en tus cartolas</div><strong>${esc(S.holder)}</strong></li>
-            <li class="list-group-item"><div class="small text-body-secondary">Acceso</div>${esc((S.user && S.user.email) || 'Sin cuenta (datos de ejemplo)')}</li>
+            <li class="list-group-item"><div class="small text-body-secondary">Acceso</div>${esc((S.user && S.user.email) || 'Sin cuenta (datos de ejemplo)')}
+              ${S.user && !S.sample ? (S.user.confirmado ? ' <span class="badge text-bg-success">Correo confirmado</span>' : ' <span class="badge text-bg-warning">Correo sin confirmar</span> <button class="btn btn-link btn-sm p-0 align-baseline" data-act="reenviar-correo">Reenviar correo</button>') : ''}</li>
           </ul>
         </div>
         <div class="card">

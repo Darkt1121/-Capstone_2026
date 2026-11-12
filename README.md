@@ -12,7 +12,8 @@ Los movimientos entran de dos formas:
 - conectando el banco con Fintoc en modo solo lectura (nunca se pide la clave del banco).
 
 ## Qué tiene
-- **Cuentas de usuario**: registro con correo y contraseña, o entrar con Google. Límite de intentos
+- **Cuentas de usuario**: registro con correo y contraseña, confirmación por correo y recuperación
+  de contraseña. Límite de intentos
   de contraseña.
 - **Privacidad**: política de privacidad dentro de la página y consentimiento expreso antes de
   guardar movimientos; queda registrada la versión aceptada y la fecha (ley N° 21.719).
@@ -43,7 +44,8 @@ Los movimientos entran de dos formas:
 | Servidor | Python 3.12 con Django 5.2 |
 | Base de datos | PostgreSQL 16, en Docker |
 | Conexión a la base de datos | ORM de Django con `psycopg` |
-| Cuentas de usuario | Sistema de usuarios de Django (hash `scrypt`, sesiones y protección CSRF), o Google (Google Identity Services) |
+| Cuentas de usuario | Sistema de usuarios de Django (hash `scrypt`, sesiones y protección CSRF) |
+| Correos | SMTP de Brevo (confirmación de cuenta y recuperar contraseña) |
 | Conexión bancaria | API y widget de Fintoc, en modo prueba |
 | Asistente | API de Groq |
 | Lectura de Excel | SheetJS, cargado desde CDN |
@@ -74,8 +76,6 @@ Para revisar los datos existe el panel de administración de Django en http://lo
 Opcional, en el `.env`:
 - **Conectar un banco**: llaves de **modo prueba** de https://app.fintoc.com (`sk_test_...` y
   `pk_test_...`). Sin llaves la página funciona igual, solo con cartolas.
-- **Entrar con Google**: `GOOGLE_CLIENT_ID` de https://console.cloud.google.com (cliente OAuth
-  de tipo "Aplicación web", con origen autorizado `http://localhost:3000`).
 - **Asistente**: `GROQ_API_KEY` de https://console.groq.com.
 - **Contacto de la política de privacidad**: `CONTACT_EMAIL`.
 
@@ -116,7 +116,7 @@ Las evidencias se organizan según las fases de la asignatura:
         (public/: pantallas, cartolas, clasificación y proyección)
              |                    |                      |
              v                    v                      v
-      Botón de Google      Widget de Fintoc          Django (Python)  
+                           Widget de Fintoc          Django (Python)  
              |                    |                 /       |        \
              +--------------------+--> token       v        v         v
                                              PostgreSQL   Fintoc     Groq
@@ -131,7 +131,7 @@ Las evidencias se organizan según las fases de la asignatura:
   Fintoc y con Groq. Las llaves secretas y el `link_token` del banco se quedan en el servidor;
   al navegador solo llegan los movimientos ya convertidos.
 - **Cuentas**: el sistema de usuarios de Django. Con correo y contraseña se guarda solo el hash
-  (`scrypt`). Con Google, el servidor comprueba el token con Google antes de aceptar. La sesión es
+  (`scrypt`), con confirmación por correo y recuperación de contraseña por link. La sesión es
   una cookie `HttpOnly` y cada cambio lleva el token CSRF de Django.
 - **Base de datos** (modelos de Django en `core/models.py`, creados con migraciones): tablas `usuarios`, `ajustes`, `cuentas`,
   `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`. Cada usuario ve solo sus datos, y puede entrar desde
@@ -157,16 +157,24 @@ Capstone_2026/
     ├── core/                    la app: modelos (tablas), rutas /api y servicios externos
     │   ├── models.py            tablas
     │   ├── views.py             rutas /api
-    │   ├── externos.py          Fintoc, Google y Groq
+    │   ├── externos.py          Fintoc y Groq
+    │   ├── correos.py           confirmación de cuenta y recuperar contraseña
+    │   ├── tests.py             pruebas del servidor
     │   └── migrations/          historial de cambios de las tablas
     └── public/
         ├── index.html           estructura de la página
         ├── css/finflow.css      estilos propios (además de Bootstrap)
         └── js/
             ├── main.js          punto de entrada: carga los módulos y arranca la página
-            ├── logica/
-            │   ├── logica.js    cálculos: cartolas, clasificación, traspasos, proyección,
-            │   │                presupuestos y metas (también se puede probar fuera del navegador)
+            ├── logica/          cálculos (no dependen de la pantalla; se prueban por separado)
+            │   ├── index.js     junta todo en el objeto FF
+            │   ├── util.js      fechas, montos y meses
+            │   ├── cartolas.js  CSV, Excel y PDF de BancoEstado y MACHBANK
+            │   ├── clasificacion.js  reglas, comercio y categorías
+            │   ├── traspasos.js      cuentas propias y movimientos repetidos
+            │   ├── movimientos.js    arma la lista de movimientos y une cartolas
+            │   ├── proyeccion.js     pagos fijos y proyección a 4 semanas
+            │   ├── plan.js      resumen, presupuestos, metas, recordatorios y reporte
             │   └── ejemplo.js   cartolas de ejemplo (ficticias)
             ├── app/
             │   ├── estado.js    estado de la página, íconos y ayudas
@@ -174,7 +182,7 @@ Capstone_2026/
             │   ├── render.js    dibuja la pantalla que corresponde
             │   ├── notificaciones.js
             │   ├── importar.js  cartolas (CSV, Excel, PDF) y Fintoc
-            │   ├── sesion.js    Google, cuentas y guardado en el servidor
+            │   ├── sesion.js    cuentas y guardado en el servidor
             │   └── eventos.js   botones y formularios
             ├── pantallas/       una por pantalla: portada, cuenta, configuracion, inicio,
             │                    movimientos, proyeccion, plan, reporte, perfil, calendario,

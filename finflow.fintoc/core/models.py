@@ -11,10 +11,7 @@ class UsuarioManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra):
         usuario = self.model(email=self.normalize_email(email).lower(), **extra)
-        if password:
-            usuario.set_password(password)
-        else:
-            usuario.set_unusable_password()   # entra con Google
+        usuario.set_password(password)
         usuario.save(using=self._db)
         return usuario
 
@@ -25,14 +22,14 @@ class UsuarioManager(BaseUserManager):
 
 
 class Usuario(AbstractUser):
-    """Persona que usa FinFlow. Entra con correo y contraseña o con Google."""
+    """Persona que usa FinFlow. Entra con su correo y contraseña."""
 
     username = None
     first_name = None
     last_name = None
     email = models.EmailField('correo', unique=True)
     nombre = models.CharField(max_length=80)
-    google_id = models.CharField(max_length=64, unique=True, null=True, blank=True)   # vacío si usa contraseña
+    correo_confirmado = models.BooleanField(default=False)   # abrió el link del correo de confirmación
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre']

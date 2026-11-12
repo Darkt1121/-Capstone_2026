@@ -2,7 +2,7 @@
 import { $root, S, save, derive } from './estado.js';
 import { viewApp } from './marco.js';
 import { revisarNotificaciones } from './notificaciones.js';
-import { googleButton, importFile } from './sesion.js';
+import { importFile } from './sesion.js';
 import { animateNext, setAnimateNext, countUp } from '../graficos/proyeccion.js';
 import { viewOnboard } from '../pantallas/configuracion.js';
 import { viewAuth } from '../pantallas/cuenta.js';
@@ -22,7 +22,6 @@ export function render() {
   setAnimateNext(false);
 }
 export function afterRender() {
-  googleButton();
   // Los avisos aparecen a la izquierda del chat cuando el chat está abierto al lado.
   const avisos = document.getElementById('toasts');
   if (avisos) { if (S.view === 'app' && S.chatOpen && window.innerWidth >= 1200) avisos.style.setProperty('right', '360px', 'important'); else avisos.style.removeProperty('right'); }

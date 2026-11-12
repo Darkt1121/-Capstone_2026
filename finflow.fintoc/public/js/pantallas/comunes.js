@@ -1,6 +1,7 @@
 /* Piezas que usan varias pantallas: ayudas, título de un movimiento, recordatorios y presupuestos. */
 import { I, fmt, esc, S } from '../app/estado.js';
 import { D } from '../app/render.js';
+import { FF } from '../logica/index.js';
 
 // Ayudas para las pantallas nuevas
 export const mayus = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();

@@ -78,6 +78,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
 ]
 
+# El link para crear una contraseña nueva vence en 1 hora.
+PASSWORD_RESET_TIMEOUT = 60 * 60
+
 # Sesión: cookie HttpOnly, 30 días. CSRF: la página manda el token en el encabezado X-CSRFToken.
 SESSION_COOKIE_AGE = 30 * 24 * 60 * 60
 SESSION_COOKIE_HTTPONLY = True
@@ -92,6 +95,21 @@ if os.environ.get('DJANGO_HTTPS', '0') == '1':
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Correos (confirmación de cuenta). Con EMAIL_HOST_USER y EMAIL_HOST_PASSWORD (contraseña de aplicación de
+# Gmail) se envían de verdad; sin ellos se muestran en el registro del servidor (modo prueba).
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '')
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = True
+    EMAIL_TIMEOUT = 15
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Remitente. En Brevo el usuario SMTP no es la dirección que envía, por eso va aparte (EMAIL_FROM).
+DEFAULT_FROM_EMAIL = f'FinFlow <{os.environ.get("EMAIL_FROM") or EMAIL_HOST_USER or "no-responder@finflow.local"}>'
 
 # Una cuenta trae todos sus movimientos y una boleta llega en base64 (2 MB son unos 2,8 millones de letras).
 DATA_UPLOAD_MAX_MEMORY_SIZE = 3_000_000
@@ -110,5 +128,4 @@ FINTOC_PUBLIC_KEY = os.environ.get('FINTOC_PUBLIC_KEY', '')
 FINTOC_API = os.environ.get('FINTOC_API_BASE', 'https://api.fintoc.com/v1')
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 GROQ_MODEL = os.environ.get('GROQ_MODEL', 'openai/gpt-oss-120b')
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', '')

@@ -1,6 +1,7 @@
 /* Pantalla de portada (antes de entrar). */
 import { I, fmt, esc, SAMPLE, brand, BADGE } from '../app/estado.js';
 import { chart, phrase } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 
 // landing
 export function viewLanding() {

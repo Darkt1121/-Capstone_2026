@@ -2,6 +2,7 @@
 import { I, esc, signed, S } from '../app/estado.js';
 import { PDF, api } from '../app/importar.js';
 import { D, render } from '../app/render.js';
+import { FF } from '../logica/index.js';
 import { categorias } from './comunes.js';
 
 // Boleta del movimiento: ver, quitar o adjuntar (PDF, JPG o PNG de hasta 2 MB).

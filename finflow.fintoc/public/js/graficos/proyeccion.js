@@ -2,6 +2,7 @@
 import { fmt, esc, signed, kfmt, S } from '../app/estado.js';
 import { avisoEjemplo } from '../app/notificaciones.js';
 import { render } from '../app/render.js';
+import { FF } from '../logica/index.js';
 
 // gráfico de proyección
 // Registro de gráficos dibujados (para tooltip y arrastre del mínimo).

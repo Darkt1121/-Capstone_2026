@@ -1,11 +1,12 @@
 /* Botones, formularios y teclas. Al final dibuja la página por primera vez. */
-import { S, SAMPLE_STATE } from './estado.js';
+import { RECUPERAR, S, SAMPLE_STATE } from './estado.js';
 import { PDF, api } from './importar.js';
 import { AI, ask } from './marco.js';
-import { notificaciones, conCuenta, marcarLeidas, borrarNotif, SOLO_CON_CUENTA, avisoEjemplo } from './notificaciones.js';
+import { notificaciones, conCuenta, marcarLeidas, borrarNotif, SOLO_CON_CUENTA, avisoEjemplo, avisoSimple } from './notificaciones.js';
 import { D, render, go } from './render.js';
 import { abrirSesion, salir, runFintoc, importFile } from './sesion.js';
 import { setAnimateNext } from '../graficos/proyeccion.js';
+import { FF } from '../logica/index.js';
 import { mayus } from '../pantallas/comunes.js';
 import { avisoBoleta, subirBoleta } from '../pantallas/detalle.js';
 
@@ -26,7 +27,6 @@ document.addEventListener('click', (e) => {
     case 'politica': e.preventDefault(); document.getElementById('politica').classList.remove('d-none'); document.getElementById('politica').scrollTop = 0; break;
     case 'cerrar-politica': document.getElementById('politica').classList.add('d-none'); break;
     case 'try-sample': loadSample(); break;
-    case 'load-sample': loadSample(); break;
     case 'bank': PDF.file = null; go({ bank: el.dataset.bank, importMsg: null }); break;
     case 'fintoc-connect': runFintoc(true); break;
     case 'fintoc-sync': runFintoc(false); break;
@@ -47,6 +47,10 @@ document.addEventListener('click', (e) => {
     case 'notif-borrar-todas': S.notifs.map((n) => n.clave).forEach((c) => { if (!S.notifBorradas.includes(c)) S.notifBorradas.push(c); }); S.notifs = []; if (conCuenta()) api('/api/notificaciones?todas=1', { method: 'DELETE' }).catch(() => {}); setAnimateNext(false); render(); break;
     case 'notif-permiso': try { Notification.requestPermission().then(() => render()); } catch (er) { /* sin permiso */ } break;
     case 'toast-cerrar': el.closest('.toast').remove(); break;
+    case 'reenviar-correo': api('/api/correo/reenviar', { method: 'POST' }).then((r) => {
+      if (r.confirmado) { S.user.confirmado = true; render(); avisoSimple('Correo confirmado', 'Tu correo ya estaba confirmado.'); }
+      else avisoSimple('Correo enviado', `Te enviamos el link de nuevo a ${S.user.email}.`);
+    }, (er) => avisoSimple('No se pudo enviar', er.message)); break;
     case 'salir-ejemplo': salir(); break;
     case 'ver-revisar': go({ tab: 'movimientos', filter: 'revisar', sheetId: null }); break;
     case 'chat-nuevo': AI.msgs = []; AI.error = ''; render(); break;
@@ -106,6 +110,18 @@ document.addEventListener('submit', (e) => {
     const val = (id) => (document.getElementById(id) || {}).value || '';
     if (S.authMode === 'entrar') abrirSesion('/api/login', { email: val('email'), clave: val('pass') });
     else abrirSesion('/api/registro', { nombre: val('nombre'), email: val('email'), clave: val('pass') });
+  }
+  if (f === 'olvide') {
+    const boton = e.target.querySelector('button'); boton.disabled = true;
+    api('/api/clave/olvide', { method: 'POST', body: JSON.stringify({ email: document.getElementById('email').value }) })
+      .then(() => { document.getElementById('auth-error').textContent = ''; document.getElementById('auth-ok').textContent = 'Si hay una cuenta con ese correo, te enviamos un link para crear una contraseña nueva. Revisa también spam.'; },
+        (er) => { document.getElementById('auth-error').textContent = er.message; })
+      .finally(() => { boton.disabled = false; });
+  }
+  if (f === 'nueva-clave') {
+    const clave = document.getElementById('pass').value;
+    if (clave !== document.getElementById('pass2').value) document.getElementById('auth-error').textContent = 'Las dos contraseñas no son iguales.';
+    else abrirSesion('/api/clave/nueva', { uid: RECUPERAR.uid, token: RECUPERAR.token, clave });
   }
   if (f === 'pdf-clave' && PDF.file) importFile(PDF.file, document.getElementById('pdf-clave').value);
   const campo = (id) => ((document.getElementById(id) || {}).value || '').trim();

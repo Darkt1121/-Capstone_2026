@@ -1,18 +1,8 @@
-/* Cuentas de usuario (Google y correo) y guardado en el servidor. */
-import { STORE, FINTOC, GOOGLE, S, reiniciarEstado } from './estado.js';
+/* Cuentas de usuario (correo y contraseña) y guardado en el servidor. */
+import { STORE, FINTOC, S, reiniciarEstado } from './estado.js';
 import { bankShort, readFile, PDF, POLITICA, readPdf, api } from './importar.js';
 import { render, go } from './render.js';
-
-// inicio de sesión con Google
-// Google dibuja el botón y entrega un token; el servidor lo comprueba y crea la sesión.
-export function googleButton() {
-  const el = document.getElementById('google-btn');
-  if (!el || !GOOGLE.clientId || !window.google) return;
-  if (!GOOGLE.listo) { window.google.accounts.id.initialize({ client_id: GOOGLE.clientId, callback: googleLogin }); GOOGLE.listo = true; }
-  window.google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'continue_with', locale: 'es', width: Math.min(el.offsetWidth, 400) });
-}
-export const googleLogin = (resp) => abrirSesion('/api/login/google', { credential: resp.credential });
-window.onGoogleLibraryLoad = googleButton;
+import { FF } from '../logica/index.js';
 
 // cuentas: el servidor comprueba los datos y crea la sesión; acá solo se guarda quién entró
 export async function abrirSesion(ruta, datos) {
@@ -51,7 +41,7 @@ export async function cargarDatos(usuario) {
     // Cuenta sin datos: no se mezcla con los datos de ejemplo ni con los de otra persona.
     Object.assign(S, { holder: '', consent: false, accounts: [], rules: { __tx: {}, __internal: {} }, reglas: [], presupuestos: [], metas: [], boletas: [], notifs: [], notifBorradas: [], sample: false });
   }
-  S.user = { email: usuario.email, name: usuario.nombre };
+  S.user = { email: usuario.email, name: usuario.nombre, confirmado: usuario.confirmado !== false };
 }
 export function guardarEnServidor() {
   if (!S.user || S.sample) return;
@@ -79,7 +69,7 @@ export function guardarEnServidor() {
 }
 // Al abrir la página: con sesión se traen los datos del servidor; sin sesión se vuelve a la portada.
 export function arrancarSesion() {
-  api('/api/sesion').then(async (s) => {
+  return api('/api/sesion').then(async (s) => {
     if (!s.usuario) { if (S.user) salir(); return; }
     await cargarDatos(s.usuario);
     if (S.view === 'landing' || S.view === 'auth' || !S.consent) go({ view: S.accounts.length && S.consent ? 'app' : 'onboard', step: S.holder && S.consent ? 2 : 1 }); else render();
