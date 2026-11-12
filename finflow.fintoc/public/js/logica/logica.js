@@ -342,17 +342,6 @@
     return s;
   }
 
-  function topExpense(txs, ym, scope) {
-    const by = {};
-    for (const t of txs) {
-      if (t.internal || monthKey(t.date) !== ym || t.scope !== scope || t.amount >= 0) continue;
-      const k = counterpartyKey(t.description);
-      by[k] = (by[k] || 0) + -t.amount;
-    }
-    const top = Object.entries(by).sort((a, b) => b[1] - a[1])[0];
-    return top ? { name: top[0], amount: top[1] } : null;
-  }
-
   function balances(accounts) {
     return accounts.map((a) => {
       const last = a.rows[a.rows.length - 1];
@@ -464,33 +453,12 @@
     return { today, startBalance, minimum, enough, historyDays, points, upcoming, recurring: rec, dailyPersonal, alert };
   }
 
-  // resumen inteligente (reglas, sin modelo de lenguaje)
+  // formato de montos y nombres de meses
   const fmt = (n) => '$' + Math.round(Math.abs(n)).toLocaleString('es-CL');
   const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const monthName = (ym) => MONTHS[Number(ym.slice(5, 7)) - 1];
   const prevMonth = (ym) => { const [y, m] = ym.split('-').map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`; };
 
-  function smartSummary(txs, ym, projection) {
-    const cur = monthSummary(txs, ym); const prev = monthSummary(txs, prevMonth(ym));
-    const out = [];
-    if (cur.ingreso_negocio === 0) {
-      out.push(`En ${monthName(ym)} no registraste ingresos del negocio. Pasa en meses de transición; la proyección ya lo considera.`);
-    } else {
-      const change = prev.utilidad ? Math.round(((cur.utilidad - prev.utilidad) / Math.abs(prev.utilidad)) * 100) : null;
-      out.push(`Tu negocio dejó ${fmt(cur.utilidad)} en ${monthName(ym)}` + (change === null ? '.' : `, ${Math.abs(change)} % ${change >= 0 ? 'más' : 'menos'} que en ${monthName(prev.ym)}.`));
-    }
-    const top = topExpense(txs, ym, 'negocio');
-    if (top) out.push(`Tu mayor gasto del negocio fue ${titleCase(top.name)} (${fmt(top.amount)}).`);
-    if (projection && projection.alert) {
-      const inc = projection.upcoming.find((u) => u.amount > 0 && u.week > projection.alert.week - 1);
-      out.push(inc
-        ? `La semana del ${shortDate(projection.alert.start)} podrías bajar de tu mínimo. El pago de ${titleCase(inc.name)} (${fmt(inc.amount)}) llega el ${shortDate(inc.date)}; si lo cobras antes, no bajas.`
-        : `La semana del ${shortDate(projection.alert.start)} podrías bajar de tu mínimo. Adelantar un cobro o mover un gasto te da margen.`);
-    } else if (projection) {
-      out.push('Tu saldo se mantiene sobre tu mínimo las próximas 4 semanas.');
-    }
-    return out;
-  }
   function titleCase(s) { return s.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase()).replace(/\b(Spa|Ltda|Eirl)\b/g, (x) => x.toUpperCase()); }
   function shortDate(isoStr) { const d = toDate(isoStr); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; }
 
@@ -571,7 +539,7 @@
   }
 
   const CATEGORIAS = [...new Set(RULES.map((r) => r[2]).concat(['transferencias a personas', 'pago de tarjeta de crédito']))];
-  root.FF = { CATEGORIAS, merchant, personKey, markDuplicates, budgetStatus, goalStatus, monthlySurplus, nextCharges, businessReport, parseStatement, parsePdfStatement, parseAmount, parseDate, mergeRows, buildTransactions, classify, counterpartyKey, category, markInternal, monthSummary, topExpense, balances, recurring, project, smartSummary, toCSV, fmt, monthName, prevMonth, shortDate, titleCase, addDays, diffDays, monthKey };
+  root.FF = { CATEGORIAS, merchant, personKey, markDuplicates, budgetStatus, goalStatus, monthlySurplus, nextCharges, businessReport, parseStatement, parsePdfStatement, parseAmount, parseDate, mergeRows, buildTransactions, classify, counterpartyKey, category, markInternal, monthSummary, balances, recurring, project, toCSV, fmt, monthName, prevMonth, shortDate, titleCase, addDays, diffDays, monthKey };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 // En Node (pruebas) también se puede usar: const FF = require('./logica.js');

@@ -50,9 +50,12 @@ export async function readPdf(file, clave) {
   return paginas.join('\f');
 }
 // conexión bancaria (Fintoc)
-// Las llaves secretas y el link_token viven solo en el servidor (server.js).
+// Las llaves secretas y el link_token viven solo en el servidor (Django).
+// Cada llamada manda el token CSRF que Django dejó en la cookie "csrftoken", para que otra página
+// no pueda hacer cambios en nombre del usuario.
+const csrf = () => (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || '';
 export async function api(path, opts) {
-  const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' }, opts));
+  const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf() }, credentials: 'same-origin' }, opts));
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || 'No pudimos comunicarnos con el servidor.');
   return j;

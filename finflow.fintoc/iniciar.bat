@@ -1,15 +1,16 @@
 @echo off
-rem Enciende la base de datos y la pagina, y abre el navegador.
+rem Enciende FinFlow (base de datos y página en Docker) y abre el navegador.
 cd /d "%~dp0"
-echo Encendiendo la base de datos...
-docker compose up -d --wait db
+echo Encendiendo FinFlow...
+set COMPOSE_BAKE=false
+docker compose up -d --build --wait
 if errorlevel 1 (
   echo.
-  echo No se pudo encender la base de datos. Abre Docker Desktop, espera a que parta y vuelve a intentar.
+  echo No se pudo encender FinFlow. Abre Docker Desktop, espera a que parta y vuelve a intentar.
   pause
   exit /b 1
 )
-if not exist node_modules call npm install
-start "" cmd /c "timeout /t 3 >nul & start http://localhost:3000"
-echo Para apagar FinFlow, cierra esta ventana.
-npm start
+start http://localhost:3000
+echo FinFlow esta en http://localhost:3000
+echo Para apagarlo: docker compose down
+pause

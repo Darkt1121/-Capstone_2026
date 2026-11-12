@@ -40,10 +40,10 @@ Los movimientos entran de dos formas:
 | Componente | Tecnología |
 |---|---|
 | Interfaz web | HTML, JavaScript y Bootstrap 5.3 |
-| Servidor | Node.js (módulo HTTP nativo) |
+| Servidor | Python 3.12 con Django 5.2 |
 | Base de datos | PostgreSQL 16, en Docker |
-| Conexión a la base de datos | `pg` (única librería instalada) |
-| Cuentas de usuario | Correo y contraseña con hash `scrypt`, o Google (Google Identity Services) |
+| Conexión a la base de datos | ORM de Django con `psycopg` |
+| Cuentas de usuario | Sistema de usuarios de Django (hash `scrypt`, sesiones y protección CSRF), o Google (Google Identity Services) |
 | Conexión bancaria | API y widget de Fintoc, en modo prueba |
 | Asistente | API de Groq |
 | Lectura de Excel | SheetJS, cargado desde CDN |
@@ -54,18 +54,22 @@ Los movimientos entran de dos formas:
 | Control de versiones | Git y GitHub |
 
 ## Cómo correrlo
-Necesitas Git, Node.js 20.6 o superior y Docker Desktop.
+Necesitas Git y Docker Desktop. No hace falta instalar Python: Django corre dentro de Docker.
 
 ```bash
 git clone https://github.com/Darkt1121/-Capstone_2026.git Capstone_2026
 cd Capstone_2026/finflow.fintoc
 ```
 
-1. Copia `.env.example` como `.env` e inventa una contraseña para la base de datos
-   (`POSTGRES_PASSWORD`, y la misma dentro de `DATABASE_URL`).
-2. `docker compose up -d db` enciende PostgreSQL (puerto 5433).
-3. `npm install` instala `pg`.
-4. `npm start` y abre http://localhost:3000. Las tablas se crean solas la primera vez.
+1. Copia `.env.example` como `.env`. Inventa una contraseña para la base de datos
+   (`POSTGRES_PASSWORD`) y una clave secreta larga para Django (`DJANGO_SECRET_KEY`).
+2. `docker compose up -d --build` enciende la base de datos y la página. Al partir, Django crea
+   o actualiza las tablas solo (`python manage.py migrate`). En Windows también sirve
+   `iniciar.bat` (doble clic).
+3. Abre http://localhost:3000.
+
+Para revisar los datos existe el panel de administración de Django en http://localhost:3000/admin
+(se crea un usuario administrador con `docker compose exec web python manage.py createsuperuser`).
 
 Opcional, en el `.env`:
 - **Conectar un banco**: llaves de **modo prueba** de https://app.fintoc.com (`sk_test_...` y
@@ -112,7 +116,7 @@ Las evidencias se organizan según las fases de la asignatura:
         (public/: pantallas, cartolas, clasificación y proyección)
              |                    |                      |
              v                    v                      v
-      Botón de Google      Widget de Fintoc         server.js (Node.js)
+      Botón de Google      Widget de Fintoc          Django (Python)  
              |                    |                 /       |        \
              +--------------------+--> token       v        v         v
                                              PostgreSQL   Fintoc     Groq
@@ -123,13 +127,13 @@ Las evidencias se organizan según las fases de la asignatura:
 
 - **Navegador**: muestra las pantallas, lee las cartolas, clasifica los movimientos y calcula la
   proyección.
-- **Servidor** (`server.js`): entrega la página, maneja las cuentas y las sesiones, y habla con
+- **Servidor** (Django, app `core`): entrega la página, maneja las cuentas y las sesiones, y habla con
   Fintoc y con Groq. Las llaves secretas y el `link_token` del banco se quedan en el servidor;
   al navegador solo llegan los movimientos ya convertidos.
-- **Cuentas**: con correo y contraseña se guarda solo el hash. Con Google, el servidor comprueba
-  el token con Google antes de aceptar. La sesión es una cookie `HttpOnly` guardada en la base de
-  datos.
-- **Base de datos** (`db/schema.sql`): tablas `usuarios`, `sesiones`, `ajustes`, `cuentas`,
+- **Cuentas**: el sistema de usuarios de Django. Con correo y contraseña se guarda solo el hash
+  (`scrypt`). Con Google, el servidor comprueba el token con Google antes de aceptar. La sesión es
+  una cookie `HttpOnly` y cada cambio lleva el token CSRF de Django.
+- **Base de datos** (modelos de Django en `core/models.py`, creados con migraciones): tablas `usuarios`, `ajustes`, `cuentas`,
   `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`. Cada usuario ve solo sus datos, y puede entrar desde
   otro dispositivo y encontrar lo mismo.
 - **Conexión bancaria**: la clave del banco se escribe en el widget de Fintoc; FinFlow no la pide
@@ -143,12 +147,18 @@ Capstone_2026/
 ├── Fase 1/                      evidencias grupales e individuales
 ├── Fase 2/                      evidencias grupales, individuales y del proyecto
 └── finflow.fintoc/
-    ├── docker-compose.yml       base de datos PostgreSQL
+    ├── docker-compose.yml       base de datos (db) y página (web)
+    ├── Dockerfile               imagen de la página (Django)
+    ├── requirements.txt         librerías de Python (Django y psycopg)
     ├── .env.example             variables que necesita el .env
-    ├── package.json
-    ├── server.js                servidor
-    ├── db/
-    │   └── schema.sql           tablas
+    ├── iniciar.bat              enciende todo con doble clic (Windows)
+    ├── manage.py                comandos de Django
+    ├── config/                  configuración de Django (settings.py, urls.py)
+    ├── core/                    la app: modelos (tablas), rutas /api y servicios externos
+    │   ├── models.py            tablas
+    │   ├── views.py             rutas /api
+    │   ├── externos.py          Fintoc, Google y Groq
+    │   └── migrations/          historial de cambios de las tablas
     └── public/
         ├── index.html           estructura de la página
         ├── css/finflow.css      estilos propios (además de Bootstrap)
@@ -156,7 +166,7 @@ Capstone_2026/
             ├── main.js          punto de entrada: carga los módulos y arranca la página
             ├── logica/
             │   ├── logica.js    cálculos: cartolas, clasificación, traspasos, proyección,
-            │   │                presupuestos y metas (también se usa en Node para las pruebas)
+            │   │                presupuestos y metas (también se puede probar fuera del navegador)
             │   └── ejemplo.js   cartolas de ejemplo (ficticias)
             ├── app/
             │   ├── estado.js    estado de la página, íconos y ayudas

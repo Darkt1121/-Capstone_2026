@@ -8,12 +8,17 @@ Los movimientos entran de dos formas:
 - conectando el banco con Fintoc en modo solo lectura (nunca se pide la clave del banco).
 
 ## Cómo correrlo
-1. Instala Node 20.6 o superior (`node -v`) y Docker Desktop.
-2. Copia `.env.example` como `.env` e inventa una contraseña para la base de datos
-   (`POSTGRES_PASSWORD`, y la misma dentro de `DATABASE_URL`).
-3. `docker compose up -d db` enciende PostgreSQL (puerto 5433).
-4. `npm install` instala `pg`, el conector de PostgreSQL. Es la única librería.
-5. `npm start` y abre http://localhost:3000. Las tablas se crean solas la primera vez.
+Necesitas Docker Desktop.
+
+1. Copia `.env.example` como `.env`. Inventa una contraseña para la base de datos
+   (`POSTGRES_PASSWORD`) y una clave secreta larga para Django (`DJANGO_SECRET_KEY`).
+2. `docker compose up -d --build` enciende la base de datos y la página. Al partir, Django crea
+   o actualiza las tablas solo (`python manage.py migrate`). En Windows también sirve
+   `iniciar.bat` (doble clic).
+3. Abre http://localhost:3000.
+
+Para revisar los datos existe el panel de administración de Django en http://localhost:3000/admin
+(se crea un usuario administrador con `docker compose exec web python manage.py createsuperuser`).
 
 Opcional, en el `.env`:
 - **Conectar un banco**: llaves de **modo prueba** de https://app.fintoc.com (`sk_test_...` y
@@ -48,18 +53,20 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 - Modo claro y oscuro.
 
 ## Cómo está hecho
-- `server.js`: servidor de Node. Entrega la página, maneja las cuentas y habla con la API de
-  Fintoc. La llave secreta y el `link_token` se quedan en el servidor; al navegador solo llegan
-  los movimientos ya convertidos.
-- **Cuentas**: con correo y contraseña (se guarda solo el hash, hecho con `scrypt`) o con Google
-  (el servidor comprueba con Google el token antes de aceptar). La sesión es una cookie
-  `HttpOnly` y se guarda en la base de datos.
-- `db/schema.sql`: las tablas de PostgreSQL (`usuarios`, `sesiones`, `ajustes`, `cuentas`,
-  `movimientos`, `conexiones_bancarias`, `reglas`, `presupuestos`, `metas` y `boletas`).
+- **Servidor: Django 5.2** (Python). `config/` es la configuración y `core/` la app:
+  `models.py` (tablas), `views.py` (rutas `/api`, con las mismas respuestas que usa la página) y
+  `externos.py` (Fintoc, Google y Groq). La llave secreta de Fintoc y el `link_token` se quedan en
+  el servidor; al navegador solo llegan los movimientos ya convertidos.
+- **Cuentas**: el sistema de usuarios de Django, con correo y contraseña (hash `scrypt`) o con
+  Google (el servidor comprueba el token con Google). Sesión en cookie `HttpOnly` y protección
+  CSRF de Django en cada cambio. Límite de 5 contraseñas malas cada 15 minutos.
+- **Base de datos**: PostgreSQL. Las tablas (`usuarios`, `ajustes`, `cuentas`, `movimientos`,
+  `conexiones_bancarias`, `reglas`, `presupuestos`, `metas`, `boletas` y `notificaciones`) se
+  definen como modelos de Django y se crean con migraciones.
 - `public/`: la página. `index.html` es la estructura, `css/finflow.css` los estilos propios y
   `js/` el código en módulos (`import`/`export`), que `js/main.js` carga y arranca:
   - `logica/logica.js`: leer cartolas, clasificar, detectar traspasos entre cuentas propias y
-    proyectar. No depende de la página y se puede probar en Node.
+    proyectar. No depende de la página y se puede probar por separado.
   - `app/`: estado, menú y chat, notificaciones, importar cartolas y Fintoc, sesión y eventos.
   - `pantallas/`: un archivo por pantalla.
   - `graficos/`: los gráficos SVG. Diseño con Bootstrap 5.3. Con sesión iniciada,
@@ -69,7 +76,7 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 Navegador --(widget de Fintoc)--> Fintoc
    | exchange_token
    v
-server.js --(llave secreta + link_token)--> api.fintoc.com
+Django --(llave secreta + link_token)--> api.fintoc.com
    | movimientos {fecha, descripción, monto}
    v
 public/js -> clasificación -> resumen, proyección y calendario

@@ -4,7 +4,6 @@ import { chart } from '../graficos/proyeccion.js';
 
 export const $root = document.getElementById('root');
 export const STORE = 'finflow-proto-v1';
-export const SHARE_URL = window.FINFLOW_URL || location.href;
 
 // iconos (trazo)
 export const I = {
@@ -51,7 +50,7 @@ export function derive(state) {
   const porTag = {};
   for (const t of txs) if (!t.internal && t.amount < 0) porTag[t.tag || 'otros'] = (porTag[t.tag || 'otros'] || 0) - t.amount;
   const cats = Object.keys(porTag).filter((k) => k !== 'otros').sort((a, b) => porTag[b] - porTag[a]).slice(0, 5);
-  return { txs, bals, total, today, proj, ym, cats, month: FF.monthSummary(txs, ym), smart: FF.smartSummary(txs, ym, proj) };
+  return { txs, bals, total, today, proj, ym, cats, month: FF.monthSummary(txs, ym) };
 }
 export const SAMPLE_STATE = (() => {
   const st = fresh(); st.holder = 'Valentina Rojas Fuentes';

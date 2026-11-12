@@ -1,5 +1,5 @@
 /* Dibuja la pantalla que corresponde y lo que va después de dibujar. */
-import { $root, SHARE_URL, S, save, derive } from './estado.js';
+import { $root, S, save, derive } from './estado.js';
 import { viewApp } from './marco.js';
 import { revisarNotificaciones } from './notificaciones.js';
 import { googleButton, importFile } from './sesion.js';
@@ -28,8 +28,6 @@ export function afterRender() {
   if (avisos) { if (S.view === 'app' && S.chatOpen && window.innerWidth >= 1200) avisos.style.setProperty('right', '360px', 'important'); else avisos.style.removeProperty('right'); }
   setTimeout(revisarNotificaciones, 0);
   const chat = document.getElementById('chat-msgs'); if (chat) chat.scrollTop = chat.scrollHeight;
-  const qr = document.getElementById('qr');
-  if (qr && window.QRCode) { try { new window.QRCode(qr, { text: SHARE_URL, width: 96, height: 96, colorDark: '#0c1214', colorLight: '#ffffff' }); } catch (e) { qr.textContent = 'QR'; } }
   const dz = document.getElementById('dropzone');
   if (dz) {
     dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });

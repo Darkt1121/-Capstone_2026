@@ -78,8 +78,6 @@ section[id] { scroll-margin-top: 70px; }
 .theme-btn:hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color); }
 .theme-btn svg { width: 20px; height: 20px; }
 @media (max-width: 991.98px) { .theme-btn { bottom: 4rem; } }
-.qr-box { width: 112px; height: 112px; flex-shrink: 0; display: grid; place-items: center; }
-.qr-box img, .qr-box canvas { width: 96px !important; height: 96px !important; }
 
 /* Gráfico de proyección */
 .chart-wrap { width: 100%; overflow-x: auto; }
