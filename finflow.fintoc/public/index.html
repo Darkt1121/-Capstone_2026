@@ -88,6 +88,7 @@ section[id] { scroll-margin-top: 70px; }
 </head>
 <body>
 <div id="root"></div>
+<div id="aviso-guardado" class="alert alert-warning position-fixed bottom-0 start-50 translate-middle-x mb-5 shadow d-none" role="alert" style="z-index:1090">No pudimos guardar tus cambios. Revisa tu conexión.</div>
 <button id="tema" type="button" class="btn btn-body border rounded-circle shadow-sm position-fixed end-0 m-3 theme-btn"></button>
 <script>
 (function () {
@@ -532,7 +533,7 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   const fresh = () => ({ view: 'landing', tab: 'inicio', user: null, holder: '', consent: false, step: 1, bank: 'BancoEstado CuentaRUT', accounts: [], rules: { __tx: {}, __internal: {} }, minimum: 400000, sample: false, importMsg: null, filter: 'todos', query: '', accFilter: 'todas', sheetId: null, confirmDelete: false, exportOpen: false });
   let S = fresh();
   try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.accounts) S = Object.assign(fresh(), saved, { sheetId: null, confirmDelete: false, exportOpen: false, importMsg: null }); } catch (e) { /* sin almacenamiento */ }
-  function save() { try { const { sheetId, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } }
+  function save() { try { const { sheetId, ...rest } = S; localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) { /* sin almacenamiento */ } guardarEnServidor(); }
 
   // datos derivados
   let D = null;
@@ -1311,14 +1312,60 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
   async function abrirSesion(ruta, datos) {
     try {
       const { usuario } = await api(ruta, { method: 'POST', body: JSON.stringify(datos) });
-      go({ view: S.accounts.length ? 'app' : 'onboard', step: 1, user: { email: usuario.email, name: usuario.nombre } });
+      await cargarDatos(usuario);
+      go({ view: S.accounts.length ? 'app' : 'onboard', step: S.holder ? 2 : 1 });
     } catch (e) { const el = document.getElementById('auth-error'); if (el) el.textContent = e.message; }
   }
-  // Al abrir la página: si la sesión ya no existe en el servidor, vuelve a la portada.
-  api('/api/sesion').then((s) => {
-    if (s.usuario) { S.user = { email: s.usuario.email, name: s.usuario.nombre }; save(); }
-    else if (S.user && !S.sample) go({ view: 'landing', user: null });
-    else if (S.user) { S.user = null; save(); }
+  function salir() {
+    clearTimeout(porSubir); SUBIDO.ajustes = ''; SUBIDO.cuentas = {};
+    S = fresh(); try { localStorage.removeItem(STORE); } catch (e) { /* sin almacenamiento */ }
+    render(); window.scrollTo(0, 0);
+  }
+
+  // datos en el servidor
+  // Con sesión iniciada, las cuentas, los movimientos y los ajustes se guardan en la base de datos.
+  // SUBIDO recuerda lo último que se mandó, para subir solo lo que cambió.
+  const SUBIDO = { ajustes: '', cuentas: {} };
+  let porSubir = null;
+  const ajustesDe = (s) => JSON.stringify({ holder: s.holder, consent: s.consent, minimum: s.minimum, rules: s.rules });
+  async function cargarDatos(usuario) {
+    const mismoUsuario = S.user && S.user.email === usuario.email;
+    const d = await api('/api/datos');
+    if (d.accounts.length || d.holder) {
+      Object.assign(S, { holder: d.holder, consent: d.consent, minimum: d.minimum === null ? S.minimum : d.minimum, rules: Object.assign({ __tx: {}, __internal: {} }, d.rules), accounts: d.accounts, sample: false });
+      SUBIDO.ajustes = ajustesDe(S); SUBIDO.cuentas = {};
+      for (const a of S.accounts) SUBIDO.cuentas[a.id] = JSON.stringify(a);
+    } else if (!mismoUsuario) {
+      // Cuenta sin datos: no se mezcla con los datos de ejemplo ni con los de otra persona.
+      Object.assign(S, { holder: '', consent: false, accounts: [], rules: { __tx: {}, __internal: {} }, sample: false });
+    }
+    S.user = { email: usuario.email, name: usuario.nombre };
+  }
+  function guardarEnServidor() {
+    if (!S.user || S.sample) return;
+    clearTimeout(porSubir);
+    porSubir = setTimeout(async () => {
+      if (!S.user || S.sample) return;
+      const aviso = document.getElementById('aviso-guardado');
+      try {
+        const ajustes = ajustesDe(S);
+        if (ajustes !== SUBIDO.ajustes) { await api('/api/ajustes', { method: 'PUT', body: ajustes }); SUBIDO.ajustes = ajustes; }
+        for (const a of S.accounts) {
+          const texto = JSON.stringify(a);
+          if (texto !== SUBIDO.cuentas[a.id]) { await api('/api/cuentas', { method: 'POST', body: texto }); SUBIDO.cuentas[a.id] = texto; }
+        }
+        for (const id of Object.keys(SUBIDO.cuentas)) {
+          if (!S.accounts.some((a) => a.id === id)) { await api('/api/cuentas?id=' + encodeURIComponent(id), { method: 'DELETE' }); delete SUBIDO.cuentas[id]; }
+        }
+        aviso.classList.add('d-none');
+      } catch (e) { aviso.classList.remove('d-none'); }
+    }, 400);
+  }
+  // Al abrir la página: con sesión se traen los datos del servidor; sin sesión se vuelve a la portada.
+  api('/api/sesion').then(async (s) => {
+    if (!s.usuario) { if (S.user) salir(); return; }
+    await cargarDatos(s.usuario);
+    if (S.view === 'landing' || S.view === 'auth') go({ view: S.accounts.length ? 'app' : 'onboard', step: S.holder ? 2 : 1 }); else render();
   }).catch(() => {});
 
   async function syncFintoc() {
@@ -1410,8 +1457,8 @@ window.SAMPLE_MP = "fecha,descripcion,monto,saldo\n2026-04-08,PAGO EN PEDIDOSYA,
       case 'copy-csv': { const ta = document.getElementById('csv'); const msg = document.getElementById('copy-msg'); (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(() => { msg.textContent = 'Copiado.'; }).catch(() => { ta.select(); msg.textContent = 'Selecciónalo y cópialo con Ctrl+C.'; }); break; }
       case 'ask-delete': S.confirmDelete = true; render(); break;
       case 'cancel-delete': S.confirmDelete = false; render(); break;
-      case 'do-delete': fetch('/api/fintoc/link', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {}); S = fresh(); try { localStorage.removeItem(STORE); } catch (err) { /* nada */ } render(); break;
-      case 'logout': api('/api/logout', { method: 'POST' }).catch(() => {}); go({ view: 'landing', user: null }); break;
+      case 'do-delete': (S.user ? api('/api/usuario', { method: 'DELETE' }) : Promise.resolve()).then(salir, () => { document.getElementById('aviso-guardado').classList.remove('d-none'); }); break;
+      case 'logout': api('/api/logout', { method: 'POST' }).catch(() => {}); salir(); break;
     }
   });
   function loadSample() {

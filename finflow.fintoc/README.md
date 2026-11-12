@@ -43,10 +43,11 @@ Para verla rápido sin crear cuenta, usa "Probar con datos de ejemplo".
 - **Cuentas**: con correo y contraseña (se guarda solo el hash, hecho con `scrypt`) o con Google
   (el servidor comprueba con Google el token antes de aceptar). La sesión es una cookie
   `HttpOnly` y se guarda en la base de datos.
-- `db/schema.sql`: las tablas de PostgreSQL (`usuarios` y `sesiones`).
+- `db/schema.sql`: las tablas de PostgreSQL (`usuarios`, `sesiones`, `ajustes`, `cuentas`,
+  `movimientos` y `conexiones_bancarias`).
 - `public/index.html`: toda la página. Diseño con Bootstrap 5.3. La lógica (leer cartolas,
-  clasificar, detectar traspasos entre cuentas propias y proyectar) corre en el navegador y los
-  datos se guardan en el `localStorage`.
+  clasificar, detectar traspasos entre cuentas propias y proyectar) corre en el navegador. Con
+  sesión iniciada, los datos se guardan en la base de datos.
 
 ```
 Navegador --(widget de Fintoc)--> Fintoc
@@ -60,6 +61,4 @@ index.html -> clasificación -> resumen, proyección y calendario
 
 ## Pendiente
 - Llaves `live` de Fintoc (requiere aprobación) y HTTPS.
-- Guardar los movimientos en la base de datos: hoy siguen en el `localStorage` del navegador,
-  y el `link_token` en `data/links.json`.
 - Pruebas automáticas y el Dockerfile de la página.

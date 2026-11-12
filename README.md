@@ -103,8 +103,9 @@ Las evidencias se organizan según las fases de la asignatura:
              |                    |                 /       |        \
              +--------------------+--> token       v        v         v
                                              PostgreSQL   Fintoc     Groq
-                                             (usuarios   (cuentas y  (asistente)
-                                             y sesiones)  movimientos)
+                                             (usuarios,  (cuentas y  (asistente)
+                                             cuentas y    movimientos
+                                             movimientos) del banco)
 ```
 
 - **Navegador**: muestra las pantallas, lee las cartolas, clasifica los movimientos y calcula la
@@ -115,7 +116,9 @@ Las evidencias se organizan según las fases de la asignatura:
 - **Cuentas**: con correo y contraseña se guarda solo el hash. Con Google, el servidor comprueba
   el token con Google antes de aceptar. La sesión es una cookie `HttpOnly` guardada en la base de
   datos.
-- **Base de datos** (`db/schema.sql`): tablas `usuarios` y `sesiones`.
+- **Base de datos** (`db/schema.sql`): tablas `usuarios`, `sesiones`, `ajustes`, `cuentas`,
+  `movimientos` y `conexiones_bancarias`. Cada usuario ve solo sus datos, y puede entrar desde
+  otro dispositivo y encontrar lo mismo.
 - **Conexión bancaria**: la clave del banco se escribe en el widget de Fintoc; FinFlow no la pide
   ni la guarda.
 
@@ -138,9 +141,6 @@ Capstone_2026/
 ```
 
 ## Estado actual y pendientes
-- Los movimientos y las correcciones todavía se guardan en el navegador (`localStorage`), no en
-  la base de datos, así que no se ven desde otro dispositivo. El `link_token` del banco está en
-  un archivo del servidor.
 - La clasificación usa reglas. El modelo supervisado está pendiente.
 - La conexión bancaria funciona con las llaves de prueba de Fintoc. Las de producción requieren
   la aprobación de Fintoc.

@@ -23,6 +23,12 @@ const GOOGLE_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 const db = new Pool({ connectionString: process.env.DATABASE_URL });
 const fallo = (status, mensaje) => Object.assign(new Error(mensaje), { status });
+// Los montos son pesos enteros. Rechaza lo que no sea un número o no quepa en la base de datos.
+function entero(valor) {
+  const n = Math.round(Number(valor));
+  if (!Number.isFinite(n) || Math.abs(n) > 2_000_000_000) throw fallo(400, 'Hay un monto inválido.');
+  return n;
+}
 
 // contraseñas: se guarda "sal:hash" hecho con scrypt, nunca la contraseña
 const scrypt = promisify(crypto.scrypt);
@@ -39,7 +45,6 @@ async function iniciarSesion(res, sidViejo, usuario) {
   const sid = crypto.randomBytes(16).toString('hex');
   await db.query("INSERT INTO sesiones (id, usuario_id, expira) VALUES ($1, $2, now() + interval '30 days')", [sid, usuario.id]);
   await db.query('DELETE FROM sesiones WHERE id = $1 OR expira < now()', [sidViejo]);
-  if (links[sidViejo]) { links[sid] = links[sidViejo]; delete links[sidViejo]; persist(); }
   res.setHeader('Set-Cookie', `ff_sid=${sid}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${30 * 86400}`);
   return { usuario: { email: usuario.email, nombre: usuario.nombre } };
 }
@@ -48,12 +53,11 @@ async function usuarioDe(sid) {
   return r.rows[0] || null;
 }
 
-// sesiones y almacenamiento del link_token (solo servidor)
-const DATA_FILE = path.join(__dirname, 'data', 'links.json');
-let links = {};
-try { links = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { /* primera vez */ }
-function persist() {
-  try { fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true }); fs.writeFileSync(DATA_FILE, JSON.stringify(links), { mode: 0o600 }); } catch (e) { console.error('No se pudo guardar links.json', e.message); }
+// Para las rutas que solo puede usar alguien que inició sesión.
+async function exigirUsuario(sid) {
+  const u = await usuarioDe(sid);
+  if (!u) throw fallo(401, 'Inicia sesión para continuar.');
+  return u;
 }
 function getSid(req, res) {
   const m = /(?:^|;\s*)ff_sid=([a-f0-9]{32})/.exec(req.headers.cookie || '');
@@ -145,6 +149,69 @@ const routes = {
     return { usuario: u && { email: u.email, nombre: u.nombre } };
   },
   'POST /api/logout': async (req, res, sid) => { await db.query('DELETE FROM sesiones WHERE id = $1', [sid]); return { ok: true }; },
+  // Borra al usuario. Sus sesiones, cuentas, movimientos y ajustes se van con él (ON DELETE CASCADE).
+  'DELETE /api/usuario': async (req, res, sid) => {
+    const u = await exigirUsuario(sid);
+    await db.query('DELETE FROM usuarios WHERE id = $1', [u.id]);
+    return { ok: true };
+  },
+
+  // Datos del usuario, en el mismo formato que usa la página.
+  'GET /api/datos': async (req, res, sid) => {
+    const u = await exigirUsuario(sid);
+    const a = (await db.query('SELECT titular, consentimiento, saldo_minimo, correcciones FROM ajustes WHERE usuario_id = $1', [u.id])).rows[0];
+    const filas = (await db.query(
+      `SELECT c.clave, c.nombre, c.banco, c.origen, m.linea, to_char(m.fecha, 'YYYY-MM-DD') AS fecha, m.descripcion, m.monto, m.saldo
+       FROM cuentas c JOIN movimientos m ON m.cuenta_id = c.id
+       WHERE c.usuario_id = $1 ORDER BY c.id, m.orden`, [u.id])).rows;
+    const cuentas = new Map();
+    for (const f of filas) {
+      if (!cuentas.has(f.clave)) cuentas.set(f.clave, { id: f.clave, name: f.nombre, bank: f.banco, source: f.origen, rows: [] });
+      cuentas.get(f.clave).rows.push({ date: f.fecha, description: f.descripcion, amount: f.monto, balance: f.saldo, _line: f.linea });
+    }
+    return { holder: a ? a.titular : '', consent: a ? a.consentimiento : false, minimum: a ? a.saldo_minimo : null, rules: a ? a.correcciones : null, accounts: [...cuentas.values()] };
+  },
+  'PUT /api/ajustes': async (req, res, sid, body) => {
+    const u = await exigirUsuario(sid);
+    await db.query(
+      `INSERT INTO ajustes (usuario_id, titular, consentimiento, saldo_minimo, correcciones) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (usuario_id) DO UPDATE SET titular = EXCLUDED.titular, consentimiento = EXCLUDED.consentimiento, saldo_minimo = EXCLUDED.saldo_minimo, correcciones = EXCLUDED.correcciones`,
+      [u.id, String(body.holder || '').slice(0, 120), body.consent === true, entero(body.minimum), JSON.stringify(body.rules || {})]);
+    return { ok: true };
+  },
+  // Guarda una cuenta con todos sus movimientos (reemplaza los que tenía). Va en una transacción:
+  // o se guarda todo o no se guarda nada.
+  'POST /api/cuentas': async (req, res, sid, body) => {
+    const u = await exigirUsuario(sid);
+    const clave = String(body.id || '').slice(0, 100);
+    const filas = Array.isArray(body.rows) ? body.rows : [];
+    if (!clave || !filas.length || filas.length > 20000) throw fallo(400, 'La cuenta no tiene movimientos válidos.');
+    if (filas.some((f) => !f || !/^\d{4}-\d{2}-\d{2}$/.test(f.date))) throw fallo(400, 'Hay un movimiento con una fecha inválida.');
+    const cliente = await db.connect();
+    try {
+      await cliente.query('BEGIN');
+      const cuenta = (await cliente.query(
+        `INSERT INTO cuentas (usuario_id, clave, nombre, banco, origen) VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (usuario_id, clave) DO UPDATE SET nombre = EXCLUDED.nombre, banco = EXCLUDED.banco RETURNING id`,
+        [u.id, clave, String(body.name || 'Cuenta').slice(0, 80), String(body.bank || '').slice(0, 80), body.source === 'fintoc' ? 'fintoc' : 'cartola'])).rows[0];
+      const total = (await cliente.query('SELECT count(*)::int AS n FROM cuentas WHERE usuario_id = $1', [u.id])).rows[0].n;
+      if (total > 3) throw fallo(400, 'Ya tienes 3 cuentas. Quita una para agregar otra.');
+      await cliente.query('DELETE FROM movimientos WHERE cuenta_id = $1', [cuenta.id]);
+      await cliente.query(
+        `INSERT INTO movimientos (cuenta_id, orden, linea, fecha, descripcion, monto, saldo)
+         SELECT $1, t.orden, t.linea, t.fecha, t.descripcion, t.monto, t.saldo
+         FROM unnest($2::int[], $3::date[], $4::text[], $5::int[], $6::int[]) WITH ORDINALITY AS t(linea, fecha, descripcion, monto, saldo, orden)`,
+        [cuenta.id, filas.map((f) => entero(f._line)), filas.map((f) => f.date), filas.map((f) => String(f.description || '').slice(0, 300)),
+          filas.map((f) => entero(f.amount)), filas.map((f) => (f.balance === null || f.balance === undefined ? null : entero(f.balance)))]);
+      await cliente.query('COMMIT');
+    } catch (e) { await cliente.query('ROLLBACK'); throw e; } finally { cliente.release(); }
+    return { ok: true };
+  },
+  'DELETE /api/cuentas': async (req, res, sid, body, url) => {
+    const u = await exigirUsuario(sid);
+    await db.query('DELETE FROM cuentas WHERE usuario_id = $1 AND clave = $2', [u.id, url.searchParams.get('id')]);
+    return { ok: true };
+  },
 
   // 1) Crea el Link Intent y entrega solo el widget_token + llave pública.
   'POST /api/fintoc/link-intent': async () => {
@@ -154,27 +221,31 @@ const routes = {
 
   // 2) Cambia el exchange_token por el link_token y lo guarda en el servidor.
   'POST /api/fintoc/exchange': async (req, res, sid, body) => {
-    if (!body.exchangeToken) throw Object.assign(new Error('Falta exchangeToken.'), { status: 400 });
+    const u = await exigirUsuario(sid);
+    if (!body.exchangeToken) throw fallo(400, 'Falta exchangeToken.');
     const link = await fintoc('GET', '/links/exchange', { query: { exchange_token: body.exchangeToken } });
-    links[sid] = { linkToken: link.link_token, institution: (link.institution && link.institution.name) || 'Banco de Chile', at: Date.now() };
-    persist();
+    await db.query(
+      `INSERT INTO conexiones_bancarias (usuario_id, link_token, institucion) VALUES ($1, $2, $3)
+       ON CONFLICT (usuario_id) DO UPDATE SET link_token = EXCLUDED.link_token, institucion = EXCLUDED.institucion, creado = now()`,
+      [u.id, link.link_token, (link.institution && link.institution.name) || 'Banco']);
     return { ok: true };
   },
 
   // 3) Trae cuentas y movimientos y los entrega listos para FinFlow.
   'GET /api/fintoc/movements': async (req, res, sid, body, url) => {
-    const rec = links[sid];
-    if (!rec) throw Object.assign(new Error('Aún no has conectado tu banco.'), { status: 401 });
+    const u = await exigirUsuario(sid);
+    const rec = (await db.query('SELECT link_token, institucion FROM conexiones_bancarias WHERE usuario_id = $1', [u.id])).rows[0];
+    if (!rec) throw fallo(400, 'Aún no has conectado tu banco.');
     const since = url.searchParams.get('since') || new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
-    const accounts = await fintoc('GET', '/accounts', { query: { link_token: rec.linkToken } });
+    const accounts = await fintoc('GET', '/accounts', { query: { link_token: rec.link_token } });
     const result = [];
     for (const a of accounts) {
       if (String(a.currency).toUpperCase() !== 'CLP') continue; // FinFlow trabaja en pesos
-      const movs = await allMovements(a.id, rec.linkToken, since);
+      const movs = await allMovements(a.id, rec.link_token, since);
       result.push({
         id: 'fintoc_' + a.id,
         name: a.name || a.official_name || 'Cuenta',
-        bank: rec.institution,
+        bank: rec.institucion,
         balance: a.balance && typeof a.balance.current === 'number' ? a.balance.current : null,
         rows: movs.map(toRow),
       });
@@ -183,7 +254,11 @@ const routes = {
   },
 
   // Desvincula (borra el link_token guardado en el servidor).
-  'DELETE /api/fintoc/link': async (req, res, sid) => { delete links[sid]; persist(); return { ok: true }; },
+  'DELETE /api/fintoc/link': async (req, res, sid) => {
+    const u = await exigirUsuario(sid);
+    await db.query('DELETE FROM conexiones_bancarias WHERE usuario_id = $1', [u.id]);
+    return { ok: true };
+  },
 
   // Asistente. La llave de Groq se queda en el servidor. El navegador manda la pregunta y un
   // resumen ya calculado (totales, sin nombres de personas ni RUT); el modelo solo redacta.
@@ -222,14 +297,18 @@ const server = http.createServer(async (req, res) => {
     if (!handler) return send(404, { error: 'No encontrado' });
     if (!ENABLED && url.pathname.startsWith('/api/fintoc/') && url.pathname !== '/api/fintoc/config') return send(503, { error: 'El servidor no tiene llaves de Fintoc configuradas (.env).' });
     let body = {};
-    if (req.method === 'POST') {
-      let raw = ''; for await (const c of req) { raw += c; if (raw.length > 20_000) return send(413, { error: 'Solicitud demasiado grande' }); }
+    if (req.method === 'POST' || req.method === 'PUT') {
+      const maximo = url.pathname === '/api/cuentas' ? 3_000_000 : 200_000; // una cuenta trae todos sus movimientos
+      req.setEncoding('utf8'); // para que una tilde no se corte entre dos pedazos del mensaje
+      let raw = ''; for await (const c of req) { raw += c; if (raw.length > maximo) return send(413, { error: 'Solicitud demasiado grande' }); }
       try { body = raw ? JSON.parse(raw) : {}; } catch { return send(400, { error: 'JSON inválido' }); }
     }
     const sid = getSid(req, res);
     send(200, await handler(req, res, sid, body, url));
   } catch (e) {
     console.error(`[${req.method} ${url.pathname}]`, e.message);
+    // Los errores de la base de datos no se muestran al usuario: pueden revelar cómo está hecha.
+    if (e.severity) return send(500, { error: 'No pudimos guardar o leer tus datos. Inténtalo de nuevo.' });
     send(e.status && e.status < 500 ? e.status : 502, { error: e.message });
   }
 });
